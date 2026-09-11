@@ -13,8 +13,8 @@ public class Uniforms implements TabableItem {
     public static RegistrySupplier<British23Bottom> BRITISH23_BOTTOM = ItemsReg.ITEMS.register("uniform_british23_bottom", British23Bottom::new);
     public static RegistrySupplier<G99Top> G99_TOP = ItemsReg.ITEMS.register("uniform_g99_top", G99Top::new);
     public static RegistrySupplier<G99Bottom> G99_BOTTOM = ItemsReg.ITEMS.register("uniform_g99_bottom", G99Bottom::new);
-    public static RegistrySupplier<HautPoliceNationale> HautPoliceNationale = ItemsReg.ITEMS.register("haut_pn", HautPoliceNationale::new);
-    public static RegistrySupplier<BasPoliceNationale> BasPoliceNationale = ItemsReg.ITEMS.register("bas_pn", BasPoliceNationale::new);
+    public static RegistrySupplier<HautPoliceNationale> HautPoliceNationale = ItemsReg.ITEMS.register("uniform_pn_haut", HautPoliceNationale::new);
+    public static RegistrySupplier<BasPoliceNationale> BasPoliceNationale = ItemsReg.ITEMS.register("uniform_pn_bas", BasPoliceNationale::new);
     public static RegistrySupplier<SpnTop> SPN_TOP = ItemsReg.ITEMS.register("uniform_spn_top", SpnTop::new);
     public static RegistrySupplier<SpnBottom> SPN_BOTTOM = ItemsReg.ITEMS.register("uniform_spn_bottom", SpnBottom::new);
     private static final List<RegistrySupplier<? extends ItemLike>> items = List.of(
