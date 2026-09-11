@@ -1,0 +1,14 @@
+package net.zerocontact.item.uniform;
+
+import net.minecraft.resources.ResourceLocation;
+
+import static net.zerocontact.ZeroContact.MOD_ID;
+
+public class BasPoliceNationale extends BaseUniformBottom{
+    private static final ResourceLocation texture = new ResourceLocation(MOD_ID,"textures/models/uniform/uniform_bas_pn.png");
+    private static final ResourceLocation model = new ResourceLocation(MOD_ID,"geo/uniform/uniform_pn_bottom.geo.json");
+    private static final ResourceLocation animation = new ResourceLocation(MOD_ID,"");
+    public BasPoliceNationale() {
+        super(texture, model, animation);
+    }
+}
