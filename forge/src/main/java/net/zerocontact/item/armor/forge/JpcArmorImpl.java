@@ -22,7 +22,12 @@ public class JpcArmorImpl extends BaseArmorGeoImpl {
                 new ResourceLocation(MOD_ID, "textures/models/armorrig/armorrig_jpc_2v_sc_tan.png"),
                 new ResourceLocation(MOD_ID, "geo/armorrig/armorrig_jpc_2v_sc_tan.geo.json"),
                 null
-        );
+        ),
+        PN_GS(
+                new ResourceLocation(MOD_ID, "textures/models/armorrig/armorrig_jpc_2v_pn.png"),
+                new ResourceLocation(MOD_ID, "geo/armorrig/armorrig_jpc_2v_sc_tan.geo.json"),
+                null
+                        );
         private final ResourceLocation texture;
         private final ResourceLocation model;
         private final ResourceLocation animation;

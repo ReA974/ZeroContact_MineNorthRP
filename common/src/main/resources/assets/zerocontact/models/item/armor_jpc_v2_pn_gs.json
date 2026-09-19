@@ -1,7 +1,7 @@
 {
   "parent": "builtin/entity",
   "textures": {
-    "layer0": "zerocontact:models/uniform/uniform_bas_pn"
+    "layer0": "zerocontact:models/armorrig/armorrig_jpc_2v_sc_tan"
   },
   "display": {
     "gui": {
@@ -12,7 +12,7 @@
       ],
       "translation": [
         0,
-        -6,
+        -13,
         0
       ],
       "scale": [

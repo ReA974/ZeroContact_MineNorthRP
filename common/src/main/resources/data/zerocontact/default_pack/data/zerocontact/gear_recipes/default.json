@@ -289,6 +289,24 @@
       ]
     },
     {
+      "gear_id": "zerocontact:armor_jpc_v2_swimmer_cut",
+      "ingredient_items": [
+        {
+          "itemId": "minecraft:green_wool",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "gear_id": "zerocontact:armor_jpc_v2_pn_gs",
+      "ingredient_items": [
+        {
+          "itemId": "minecraft:green_wool",
+          "count": 3
+        }
+      ]
+    },
+    {
       "gear_id": "zerocontact:armor_thor_black",
       "ingredient_items": [
         {

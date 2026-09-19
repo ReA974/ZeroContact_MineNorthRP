@@ -19,12 +19,10 @@ public class Armors implements TabableItem {
 //    public static RegistrySupplier<R6b43ArmorImpl> R6B43 = ItemsReg.ITEMS.register("armor_6b43", () -> R6b43ArmorImpl.create(R6b43ArmorImpl.Series.FLORA, 12, 64, 12, 0.05f, .7f, -0.1F));
 //    public static RegistrySupplier<JpcArmorImpl> JPC_V1 = ItemsReg.ITEMS.register("armor_jpc_v1", () -> JpcArmorImpl.create(JpcArmorImpl.Series.V1, 0, 32, 0, 0.25f, 0.95f, 0.01F));
 //    public static RegistrySupplier<JpcArmorImpl> JPC_V2 = ItemsReg.ITEMS.register("armor_jpc_v2", () -> JpcArmorImpl.create(JpcArmorImpl.Series.V2, 0, 32, 0, 0.25f, 0.95f, 0.01F));
-//    public static RegistrySupplier<JpcArmorImpl> JPC_V2_SC = ItemsReg.ITEMS.register("armor_jpc_v2_swimmer_cut", () -> JpcArmorImpl.create(JpcArmorImpl.Series.V2SC, 0, 16, 0, 0.25f, 0.95f, 0.01F));
+    public static RegistrySupplier<JpcArmorImpl> JPC_V2_PN = ItemsReg.ITEMS.register("armor_jpc_v2_pn_gs", () -> JpcArmorImpl.create(JpcArmorImpl.Series.PN_GS, 6, 64, 6, 0.25f, 0.95f, 0.01F));
 //    public static RegistrySupplier<AvsArmorImpl> AVS = ItemsReg.ITEMS.register("armor_avs", () -> new AvsArmorImpl(0, 48, 0, 0.20f, 0.85f, -0.03F));
     private static final List<RegistrySupplier<? extends ItemLike>> items = List.of(
-//            THOR_ARMOR, UNTAR_ARMOR, HEXGRID_ARMOR, R6B2,
-//            R6B23I, R6B23II, DEFENDER, R6B43, JPC_V1, JPC_V2,
-//            JPC_V2_SC, AVS
+        JPC_V2_PN
     );
 
     @Override
