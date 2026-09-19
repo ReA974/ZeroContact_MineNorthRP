@@ -63,7 +63,14 @@ public class Armband extends AbstractGenerateGeoCurioItemImpl implements IEquipm
                         new ResourceLocation(MOD_ID,"geo/armband/armband_yellow.geo.json"),
                         new ResourceLocation(MOD_ID,"")
                 )
-        );
+        ),
+        PN(
+                new ArmbandResources(
+                new ResourceLocation(MOD_ID,"textures/models/armband/brassard_pn.png"),
+                        new ResourceLocation(MOD_ID,"geo/armband/brassard_pn.geo.json"),
+                        new ResourceLocation(MOD_ID,"")
+                )
+                        );
         public final ArmbandResources resourceLocations;
         Series(ArmbandResources resourceLocations){
             this.resourceLocations = resourceLocations;

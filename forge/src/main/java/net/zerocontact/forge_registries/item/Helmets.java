@@ -11,9 +11,11 @@ import java.util.List;
 public class Helmets implements TabableItem {
     public static RegistrySupplier<AltynVisor.WithVisor> ALTYN_VISOR_HELMET = ItemsReg.ITEMS.register("helmet_altyn_visor", () -> new AltynVisor.WithVisor(10, 72, 0.21f, 1.25f));
     public static RegistrySupplier<Berret_pn> BERET_PN = ItemsReg.ITEMS.register("helmet_berret_pn", () -> new Berret_pn(10, 72, 0.21f, 1.25f));
+    public static RegistrySupplier<Mask_PN> Mask_PN = ItemsReg.ITEMS.register("masque_pn", () -> new Mask_PN(10, 72, 0.21f, 1.25f));
+
 
     private static final List<RegistrySupplier<? extends ItemLike>> items = List.of(
-            ALTYN_VISOR_HELMET,BERET_PN
+            ALTYN_VISOR_HELMET,BERET_PN,Mask_PN
     );
 
     @Override

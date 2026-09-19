@@ -1,0 +1,15 @@
+package net.zerocontact.item.helmet;
+
+import net.minecraft.resources.ResourceLocation;
+
+import static net.zerocontact.ZeroContact.MOD_ID;
+
+public class Mask_PN extends BaseGeoHelmet {
+    private static final ResourceLocation texture = new ResourceLocation(MOD_ID, "textures/models/mask/mask_pn.png");
+    private static final ResourceLocation model = new ResourceLocation(MOD_ID, "geo/mask/mask_cold_fear_black.geo.json");
+    private static final ResourceLocation animation = null;
+
+    public Mask_PN(int absorb, int defaultDurability, float bluntReduction, float penetrateReduction) {
+        super(absorb, defaultDurability, texture, model, animation, bluntReduction, penetrateReduction);
+    }
+}

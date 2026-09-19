@@ -16,6 +16,7 @@ public class Armbands implements TabableItem {
     public static RegistrySupplier<Armband> ARMBAND_WHITE = ItemsReg.ITEMS.register("armband_white", () -> Armband.create(Armband.Series.WHITE));
     public static RegistrySupplier<Armband> ARMBAND_YELLOW = ItemsReg.ITEMS.register("armband_yellow", () -> Armband.create(Armband.Series.YELLOW));
     public static RegistrySupplier<Armband> ARMBAND_FLORA = ItemsReg.ITEMS.register("armband_flora", () -> Armband.create(Armband.Series.FLORA));
+    public static RegistrySupplier<Armband> BRASSARD_PN = ItemsReg.ITEMS.register("brassard_pn", () -> Armband.create(Armband.Series.PN));
     private static final List<RegistrySupplier<? extends ItemLike>> items = List.of(
             ARMBAND_BLACK,
             ARMBAND_RED,
@@ -23,7 +24,8 @@ public class Armbands implements TabableItem {
             ARMBAND_BLUE,
             ARMBAND_WHITE,
             ARMBAND_YELLOW,
-            ARMBAND_FLORA
+            ARMBAND_FLORA,
+            BRASSARD_PN
     );
 
     @Override
