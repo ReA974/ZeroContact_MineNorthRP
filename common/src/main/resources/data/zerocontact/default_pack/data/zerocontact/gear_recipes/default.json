@@ -117,6 +117,19 @@
       ]
     },
     {
+      "gear_id": "zerocontact:helmet_berret_pn",
+      "ingredient_items": [
+        {
+          "itemId": "minecraft:black_wool",
+          "count": 1
+        },
+        {
+          "itemId": "minecraft:white_wool",
+          "count": 1
+        }
+      ]
+    },
+    {
       "gear_id": "zerocontact:helmet_altyn_visor",
       "ingredient_items": [
         {

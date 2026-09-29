@@ -1,7 +1,7 @@
 {
   "parent": "builtin/entity",
   "textures": {
-    "layer0": "zerocontact:models/mask/mask_pn"
+    "layer0": "zerocontact:models/uniform/police_national/uniform_haut_pn_gardien"
   },
   "display": {
     "gui": {
@@ -12,7 +12,7 @@
       ],
       "translation": [
         0,
-        -20,
+        -13,
         0
       ],
       "scale": [
@@ -109,7 +109,7 @@
       ],
       "translation": [
         0,
-        -24,
+        -15,
         0
       ]
     }

@@ -5,7 +5,7 @@
   "protection_class":8,
   "equipment_slot": "MASK",
   "default_durability": 24,
-  "texture": "textures/models/mask/mask_cold_fear_black.png",
+  "texture": "textures/models/mask/mask_pn.png",
   "model": "geo/mask/mask_cold_fear_black.geo.json",
   "hurt_modifier":
   {
