@@ -7,10 +7,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.zerocontact.api.ICartridgeHolder;
+import net.zerocontact.api.caliber.ICartridgeHolder;
 import net.zerocontact.caliber.AmmoInjector;
 import net.zerocontact.caliber.CaliberSerializer;
-import net.zerocontact.caliber.CaliberVariantDamageHelper;
+import net.zerocontact.caliber.CaliberHelper;
 import net.zerocontact.item.ammo.GenerateAmmo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,8 +20,10 @@ import java.util.Map;
 import static net.zerocontact.caliber.CaliberSerializer.*;
 
 public class GunCartridgeTypeCap implements ICartridgeHolder {
+    private boolean creativeHandling = false;
+
     //Sync tags when change cartridge;
-    public void copyTags(CaliberVariantDamageHelper.Caliber defaultCaliber, ItemStack gun) {
+    public void copyTags(CaliberHelper.Caliber defaultCaliber, ItemStack gun) {
         AmmoInjector.copyTags(defaultCaliber, gun);
     }
 
@@ -75,5 +77,17 @@ public class GunCartridgeTypeCap implements ICartridgeHolder {
         AmmoInjector.AmmoContext context = CaliberSerializer.load(gunStack.getTag(), gunStack);
         if (context.isEmpty()) return Map.of();
         return context.caliber().getInaccuracy(gunStack);
+    }
+
+    @Override
+    public void setCreativeHandling(boolean creative) {
+        creativeHandling = creative;
+    }
+
+    @Override
+    public boolean getCreativeHandling() {
+        boolean result = creativeHandling;
+        creativeHandling = false;
+        return result;
     }
 }

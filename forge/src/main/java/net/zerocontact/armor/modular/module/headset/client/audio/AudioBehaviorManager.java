@@ -1,0 +1,49 @@
+package net.zerocontact.armor.modular.module.headset.client.audio;
+
+import com.tacz.guns.client.sound.GunSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.zerocontact.armor.modular.module.headset.model.AudioProfile;
+import net.zerocontact.config.ModConfigs;
+
+public final class AudioBehaviorManager {
+    private static AudioBehaviorCalc audioBehaviorCalc;
+
+    public static AudioBehaviorCalc getAudioBehaviorCalc() {
+        if (audioBehaviorCalc == null) {
+            audioBehaviorCalc = new AudioBehaviorCalc();
+        }
+        return audioBehaviorCalc;
+    }
+
+    public static class AudioBehaviorCalc {
+
+        public float increaseLinearAttenuation(float originalAttenuation) {
+            if (!HeadsetAudioState.isActive()) {
+                return originalAttenuation;
+            }
+            AudioProfile profile = HeadsetAudioState.getProfile();
+            if (profile != null) {
+                return profile.pickUpAttenuation();
+            }
+            return originalAttenuation;
+        }
+
+        public float overrideGunSoundMinuend() {
+            return 0.7175f;
+        }
+
+        public double expandSoundRadius(double original) {
+            return original * 2;
+        }
+
+        public boolean shouldAttachToPCM(SoundInstance instance) {
+            return ModConfigs.CLIENT.audioEffect().get()
+                    && (
+                    (instance instanceof GunSoundInstance)
+                            || instance.getLocation().getPath().startsWith("ambient")
+                            || instance.getLocation().getPath().startsWith("entity")
+                            || instance.getLocation().getPath().startsWith("weather")
+            );
+        }
+    }
+}

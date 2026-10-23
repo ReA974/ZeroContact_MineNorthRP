@@ -1,0 +1,43 @@
+{
+  "type":"armor",
+  "id": "helmet_airframe",
+  "defense": 0,
+  "protection_class":8,
+  "equipment_slot": "HELMET",
+  "default_durability": 42,
+  "texture": "textures/models/helmet/helmet_airframe_tan.png",
+  "model": "geo/helmet/helmet_airframe_tan.geo.json",
+  "hurt_modifier":
+  {
+    "ricochet_multiplier":0.35,
+    "penetrate_multiplier":0.78,
+    "blunt_multiplier":0.38
+  },
+  "durability_loss_modifier":1,
+  "attachments": [
+    {
+      "mount_id": "nvg_mount",
+      "mount_type": "helmet_front",
+      "mount_bone": "nvg_fix",
+      "accept_categories": ["night_vision"]
+    },
+    {
+      "mount_id": "battery_mount",
+      "mount_type": "helmet_back",
+      "mount_bone": "battery_fix",
+      "accept_categories": ["battery"]
+    },
+    {
+      "mount_id": "beacon_mount",
+      "mount_type": "helmet_top",
+      "mount_bone": "beacon_fix",
+      "accept_categories": ["beacon"]
+    },
+    {
+      "mount_id": "headset_mount",
+      "mount_type": "helmet_top",
+      "mount_bone": "headset_fix",
+      "accept_categories": ["headset"]
+    }
+  ]
+}

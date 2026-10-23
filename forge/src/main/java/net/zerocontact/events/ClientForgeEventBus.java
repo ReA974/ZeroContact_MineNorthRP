@@ -5,9 +5,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.zerocontact.armor.modular.client.network.c2s.OpenModularMenuPacket;
+import net.zerocontact.armor.modular.client.screen.EquipmentScreen;
 import net.zerocontact.client.interaction.KeyBindingHandler;
 import net.zerocontact.network.ModMessages;
-import net.zerocontact.network.NetworkHandler;
+import net.zerocontact.network.c2s.FlipVisorPacket;
+import net.zerocontact.network.c2s.OpenAmmoSelectorPacket;
+import net.zerocontact.network.c2s.ToggleBackpackPacket;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ClientForgeEventBus {
@@ -19,19 +23,29 @@ public class ClientForgeEventBus {
         listenVisorKey();
         listenBackpackKey();
         listenAmmoSelectorKey();
+        listenEquipmentMenuKey();
     }
 
-    private static void listenAmmoSelectorKey(){
-        while (KeyBindingHandler.TOGGLE_AMMO_SELECTOR.consumeClick()){
-            if(Minecraft.getInstance().screen == null){
-                ModMessages.sendToServer(new NetworkHandler.OpenAmmoSelectorPacket());
+    private static void listenAmmoSelectorKey() {
+        while (KeyBindingHandler.TOGGLE_AMMO_SELECTOR.consumeClick()) {
+            if (Minecraft.getInstance().screen == null) {
+                ModMessages.sendToServer(new OpenAmmoSelectorPacket());
             }
         }
     }
+
+    private static void listenEquipmentMenuKey() {
+        while (KeyBindingHandler.TOGGLE_MODULAR_MENU.consumeClick()) {
+            if (Minecraft.getInstance().screen == null) {
+                ModMessages.sendToServer(new OpenModularMenuPacket());
+            }
+        }
+    }
+
     private static void listenBackpackKey() {
         while (KeyBindingHandler.TOGGLE_BACKPACK_KEY.consumeClick()) {
             if (!suppressBackpackOpenUntilKeyRelease && Minecraft.getInstance().screen == null) {
-                ModMessages.sendToServer(new NetworkHandler.ToggleBackpackPacket(true));
+                ModMessages.sendToServer(new ToggleBackpackPacket(true));
             }
         }
 
@@ -46,7 +60,8 @@ public class ClientForgeEventBus {
 
     private static void listenVisorKey() {
         if (KeyBindingHandler.TOGGLE_VISOR_KEY.consumeClick()) {
-            ModMessages.sendToServer(new NetworkHandler.FlipVisorPacket());
+            ModMessages.sendToServer(new FlipVisorPacket());
         }
     }
+
 }

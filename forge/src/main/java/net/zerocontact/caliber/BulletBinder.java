@@ -1,6 +1,8 @@
 package net.zerocontact.caliber;
 
 import com.tacz.guns.api.item.gun.AbstractGunItem;
+import com.tacz.guns.config.common.AmmoConfig;
+import com.tacz.guns.config.sync.SyncConfig;
 import com.tacz.guns.entity.EntityKineticBullet;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -11,7 +13,10 @@ import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.zerocontact.datagen.AmmoDataPOJO;
+import net.zerocontact.caliber.extension.HookDispatcher;
+import net.zerocontact.caliber.extension.HookEventTrigger;
+import net.zerocontact.caliber.extension.model.HookContext;
+import net.zerocontact.datagen.model.AmmoDataPOJO;
 import net.zerocontact.mixin.tacz.EntityKineticBulletAccessor;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +35,7 @@ public class BulletBinder {
         mapping.put(bullet.getUUID(), context);
     }
 
-    private static void setAccessorData(EntityKineticBulletAccessor accessor, CaliberVariantDamageHelper.Caliber caliber) {
+    private static void setAccessorData(EntityKineticBulletAccessor accessor, CaliberHelper.Caliber caliber) {
         accessor.life(caliber.life());
         accessor.speed(caliber.speed());
         accessor.friction(caliber.friction());
@@ -38,11 +43,15 @@ public class BulletBinder {
         accessor.knockback(caliber.knockback());
         accessor.explosion(caliber.explosion() != AmmoDataPOJO.Explosion.NONE);
         accessor.explosionKnockback(caliber.explosion().knockback());
-        accessor.explosionDamage(caliber.explosion().damage());
-        accessor.explosionDelayCount(caliber.explosion().delayCount());
-        accessor.explosionDestroyBlock(caliber.explosion().destroyBlock());
+        accessor.explosionDamage((float) Math.max(
+                0.0, caliber.explosion().damage() * SyncConfig.DAMAGE_BASE_MULTIPLIER.get()
+        ));
+        // Match TaCZ: negative disables timed detonation; allow collision checks before detonation.
+        int delayTicks = caliber.explosion().delayCount();
+        accessor.explosionDelayCount(delayTicks < 0 ? Integer.MAX_VALUE : Math.max(delayTicks, 1));
+        accessor.explosionDestroyBlock(AmmoConfig.EXPLOSIVE_AMMO_DESTROYS_BLOCK.get() && caliber.explosion().destroyBlock());
         accessor.explosionRadius(caliber.explosion().radius());
-        accessor.igniteEntity(caliber.ignite() != AmmoDataPOJO.Ignite.NONE);
+        //Ignite data is always present, do not assert NONE
         accessor.igniteEntity(caliber.ignite().igniteEntity());
         accessor.igniteEntityTime(caliber.ignite().igniteEntityTime());
         accessor.igniteBlock(caliber.ignite().igniteBlock());

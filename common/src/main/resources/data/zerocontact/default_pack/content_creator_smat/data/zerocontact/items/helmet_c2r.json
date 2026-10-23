@@ -1,0 +1,34 @@
+{
+  "type": "armor",
+  "id": "helmet_c2r",
+  "defense": 0,
+  "protection_class": 6,
+  "equipment_slot": "HELMET",
+  "default_durability": 64,
+  "texture": "textures/c2r_helmet.png",
+  "model": "geo/c2r_helmet.geo.json",
+  "hurt_modifier": {
+    "ricochet_multiplier": 0.16,
+    "penetrate_multiplier": 0.90,
+    "blunt_multiplier": 0.20
+  },
+  "durability_loss_modifier": 1,
+  "attachments": [
+    {
+      "mount_id": "nvg_mount",
+      "mount_type": "helmet_front",
+      "mount_bone": "nvg_fix",
+      "accept_categories": [
+        "night_vision"
+      ]
+    },
+    {
+      "mount_id": "headset_mount",
+      "mount_type": "helmet_top",
+      "mount_bone": "headset_fix",
+      "accept_categories": [
+        "headset"
+      ]
+    }
+  ]
+}

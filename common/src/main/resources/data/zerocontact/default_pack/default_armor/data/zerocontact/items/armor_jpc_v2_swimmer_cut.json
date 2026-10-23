@@ -1,0 +1,34 @@
+{
+  "type":"armor",
+  "id": "armor_jpc_v2_swimmer_cut",
+  "defense": 3,
+  "protection_class":2,
+  "equipment_slot": "PLATE_CARRIER",
+  "movement_fix": 0.20,
+  "default_durability": 20,
+  "texture": "textures/models/armorrig/armorrig_jpc_2v_sc_tan.png",
+  "model": "geo/armorrig/armorrig_jpc_2v_sc_tan.geo.json",
+  "hurt_modifier":
+  {
+    "ricochet_multiplier":0.15,
+    "penetrate_multiplier":0.95,
+    "blunt_multiplier":0.35
+  },
+
+  "attachments": [
+    {
+      "mount_id": "command_pouch",
+      "mount_type": "armor_pouch",
+      "mount_bone": "command_pouch_fix",
+      "accept_categories": ["admin_pouch"]
+    },
+    {
+      "mount_id": "radio_pouch",
+      "mount_type": "armor_pouch",
+      "mount_bone": "radio_pouch_fix",
+      "accept_categories": ["pouch"]
+    }
+  ],
+
+  "durability_loss_modifier":1
+}

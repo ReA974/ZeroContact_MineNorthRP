@@ -1,0 +1,461 @@
+package net.zerocontact.datagen.adapter;
+
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Item;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.zerocontact.ZeroContact;
+import net.zerocontact.api.datagen.IAssetManager;
+import net.zerocontact.api.armor.IEquipmentTypeTag;
+import net.zerocontact.armor.modular.model.MountCategory;
+import net.zerocontact.armor.modular.module.headset.item.Headset;
+import net.zerocontact.armor.modular.module.headset.model.AudioProfile;
+import net.zerocontact.armor.modular.module.nvg.api.INvg;
+import net.zerocontact.armor.modular.module.nvg.item.NVG;
+import net.zerocontact.armor.modular.registry.ModuleRegistry;
+import net.zerocontact.datagen.loader.ZAssetManager;
+import net.zerocontact.datagen.loader.ZContentLoader;
+import net.zerocontact.datagen.model.*;
+import net.zerocontact.item.ammo.GenerateAmmo;
+import net.zerocontact.item.armband.GenerateUniformArmbandGeoImpl;
+import net.zerocontact.item.armor.forge.GenerateArmorGeoImpl;
+import net.zerocontact.item.armor.forge.GenerateCarrierGeoImpl;
+import net.zerocontact.item.armor.forge.GenerateModuleGeoImpl;
+import net.zerocontact.item.backpack.BaseBackpack;
+import net.zerocontact.item.helmet.GenerateHelmetGeoImpl;
+import net.zerocontact.item.plate.BasePlate;
+import net.zerocontact.item.rigs.BaseRigs;
+import net.zerocontact.item.uniform.GenerateUniformPantsGeoImpl;
+import net.zerocontact.item.uniform.GenerateUniformTopGeoImpl;
+import net.zerocontact.registries.ItemsReg;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static net.zerocontact.forge_registries.ItemRegistry.ITEMS_REG_TAB;
+
+public class ItemAdapter {
+    public record Mapper<T>(T data, IEquipmentTypeTag.EquipmentType type) {
+    }
+
+    public static <T> Mapper<?> getMapper(T data) {
+        Map<String, IEquipmentTypeTag.EquipmentType> convertMap = Arrays
+                .stream(IEquipmentTypeTag.EquipmentType.values())
+                .collect(Collectors.toMap(IEquipmentTypeTag.EquipmentType::getTypeId, type -> type));
+        if (data instanceof ItemPOJO.Armor armor) {
+            return new Mapper<>(armor, convertMap.get(armor.equipmentSlot));
+
+        } else if (data instanceof ItemPOJO.Plate plate) {
+            return new Mapper<>(plate, IEquipmentTypeTag.EquipmentType.PLATE);
+        } else if (data instanceof ItemPOJO.Loadout loadout) {
+            return new Mapper<>(loadout, convertMap.get(loadout.equipmentSlot));
+        } else if (data instanceof AmmoDataPOJO ammo) {
+            return new Mapper<>(ammo, IEquipmentTypeTag.EquipmentType.AMMO);
+        }
+        return new Mapper<>(null, null);
+    }
+
+    public static final List<? extends IAssetManager.GeneratableItem> ADAPTERS = List.of(
+            new ArmorAdapter(),
+            new PlateAdapter(),
+            new CarrierAdapter(),
+            new HelmetAdapter(),
+            new MaskAdapter(),
+            new ArmbandAdapter(),
+            new UniformTopAdapter(),
+            new UniformPantsAdapter(),
+            new AmmoAdapter(),
+            new BackpackAdapter(),
+            new RigsAdapter(),
+            new ModuleAdapter()
+    );
+
+    public static void register(ZAssetManager zAssetManager) {
+        ZContentLoader.itemGenData.forEach((data, tab) -> ItemAdapter.ADAPTERS.forEach(adapter -> {
+            if (data instanceof ItemPOJO.Armor armor) {
+                LinkedHashSet<GenerationRecord<?>> records = adapter.deserializeItems(armor, tab);
+                if (records.isEmpty()) return;
+                zAssetManager.registerItems(ITEMS_REG_TAB, ItemsReg.ITEMS, new IAssetManager.WearableType(records, "ARMOR_LIKE"));
+            } else if (data instanceof ItemPOJO.Plate plate) {
+                LinkedHashSet<GenerationRecord<?>> records = adapter.deserializeItems(plate, tab);
+                if (records.isEmpty()) return;
+                zAssetManager.registerItems(ITEMS_REG_TAB, ItemsReg.ITEMS, new IAssetManager.WearableType(records, "PLATE_LIKE"));
+            } else if (data instanceof AmmoDataPOJO ammo) {
+                LinkedHashSet<GenerationRecord<?>> records = adapter.deserializeItems(ammo, tab);
+                if (records.isEmpty()) return;
+                zAssetManager.registerItems(ITEMS_REG_TAB, ItemsReg.ITEMS, new IAssetManager.WearableType(records, "AMMO"));
+            } else if (data instanceof ItemPOJO.Loadout loadout) {
+                LinkedHashSet<GenerationRecord<?>> records = adapter.deserializeItems(loadout, tab);
+                if (records.isEmpty()) return;
+                zAssetManager.registerItems(ITEMS_REG_TAB, ItemsReg.ITEMS, new IAssetManager.WearableType(records, "LOADOUT"));
+            } else if (data instanceof ModularNVGPOJO modularNVGPOJO) {
+                LinkedHashSet<GenerationRecord<?>> records = adapter.deserializeItems(modularNVGPOJO, tab);
+                if (records.isEmpty()) return;
+                zAssetManager.registerItems(ITEMS_REG_TAB, ItemsReg.ITEMS, new IAssetManager.WearableType(records, "NVG"));
+            } else if (data instanceof ModularHeadsetPOJO headsetPOJO) {
+                LinkedHashSet<GenerationRecord<?>> records = adapter.deserializeItems(headsetPOJO, tab);
+                if (records.isEmpty()) return;
+                zAssetManager.registerItems(ITEMS_REG_TAB, ItemsReg.ITEMS, new IAssetManager.WearableType(records, "NVG"));
+            } else if (data instanceof ModularPOJO modular) {
+                LinkedHashSet<GenerationRecord<?>> records = adapter.deserializeItems(modular, tab);
+                if (records.isEmpty()) return;
+                zAssetManager.registerItems(ITEMS_REG_TAB, ItemsReg.ITEMS, new IAssetManager.WearableType(records, "MODULE"));
+            }
+        }));
+    }
+
+    public static class ArmorAdapter implements IAssetManager.GeneratableItem {
+        @Override
+        public <T extends ItemPOJO.Armor> LinkedHashSet<GenerationRecord<?>> deserializeItems(T data, String tab) {
+            LinkedHashSet<GenerationRecord<?>> items = new LinkedHashSet<>();
+            if (getMapper(data).type != IEquipmentTypeTag.EquipmentType.ARMOR) return items;
+            String id = data.id;
+            int defense = data.defense;
+            int defaultDurability = data.defaultDurability;
+            int absorb = data.protectionClass;
+            float mass = data.movementFix;
+            float bluntFactor = data.hurtModifier.bluntMultiplier;
+            float penetratedFactor = data.hurtModifier.penetrateMultiplier;
+            float ricochetFactor = data.hurtModifier.ricochetMultiplier;
+            ResourceLocation texture = new ResourceLocation(ZeroContact.MOD_ID, data.texture);
+            ResourceLocation model = new ResourceLocation(ZeroContact.MOD_ID, data.model);
+            ResourceLocation animation = new ResourceLocation(ZeroContact.MOD_ID, data.animation);
+            List<ItemPOJO.Armor.Attachments> attachments = data.attachments;
+            items.add(
+                    new GenerationRecord<>(
+                            id,
+                            new GenerateArmorGeoImpl(
+                                    ArmorItem.Type.CHESTPLATE,
+                                    id,
+                                    defense,
+                                    defaultDurability,
+                                    absorb,
+                                    mass,
+                                    texture,
+                                    model,
+                                    animation,
+                                    bluntFactor,
+                                    penetratedFactor,
+                                    ricochetFactor,
+                                    attachments
+                            ),
+                            tab
+                    )
+            );
+            return items;
+        }
+    }
+
+    public static class PlateAdapter implements IAssetManager.GeneratableItem {
+
+        @Override
+        public <T extends ItemPOJO.Plate> LinkedHashSet<GenerationRecord<?>> deserializeItems(T data, String tab) {
+            LinkedHashSet<GenerationRecord<?>> items = new LinkedHashSet<>();
+            if (getMapper(data).type != IEquipmentTypeTag.EquipmentType.PLATE) return items;
+            String id = data.id;
+            float bluntDamage = data.hurtModifier.bluntMultiplier;
+            float penetrateDamage = data.hurtModifier.penetrateMultiplier;
+            float ricochetDamage = data.hurtModifier.ricochetMultiplier;
+            int defense = data.defense;
+            int absorb = data.protectionClass;
+            float movementFix = data.movementFix;
+            float durabilityLossProvider = data.durabilityLossModifier;
+            int durability = data.durability;
+            ResourceLocation texture = new ResourceLocation(ZeroContact.MOD_ID, data.texture);
+            ResourceLocation model = new ResourceLocation(ZeroContact.MOD_ID, data.model);
+            ResourceLocation animation = new ResourceLocation(ZeroContact.MOD_ID, data.animation);
+            items.add(new GenerationRecord<>(id, new BasePlate(durability, defense, absorb, bluntDamage, penetrateDamage, ricochetDamage, movementFix, durabilityLossProvider, texture, model, animation), tab));
+            return items;
+        }
+    }
+
+    public static class CarrierAdapter implements IAssetManager.GeneratableItem {
+
+        @Override
+        public <T extends ItemPOJO.Armor> LinkedHashSet<GenerationRecord<?>> deserializeItems(T data, String tab) {
+            LinkedHashSet<GenerationRecord<?>> items = new LinkedHashSet<>();
+            if (getMapper(data).type != IEquipmentTypeTag.EquipmentType.PLATE_CARRIER) return items;
+            String id = data.id;
+            int defense = data.defense;
+            int defaultDurability = data.defaultDurability;
+            int absorb = data.protectionClass;
+            float mass = data.movementFix;
+            float penetrateReduction = data.hurtModifier.penetrateMultiplier;
+            float bluntReduction = data.hurtModifier.bluntMultiplier;
+            float ricochetReduction = data.hurtModifier.ricochetMultiplier;
+            ResourceLocation texture = new ResourceLocation(ZeroContact.MOD_ID, data.texture);
+            ResourceLocation model = new ResourceLocation(ZeroContact.MOD_ID, data.model);
+            ResourceLocation animation = new ResourceLocation(ZeroContact.MOD_ID, data.animation);
+            List<ItemPOJO.Armor.Attachments> attachments = data.attachments;
+            items.add(
+                    new GenerationRecord<>(
+                            id,
+                            new GenerateCarrierGeoImpl(
+                                    ArmorItem.Type.CHESTPLATE,
+                                    id, defense,
+                                    defaultDurability, absorb,
+                                    bluntReduction,
+                                    penetrateReduction,
+                                    ricochetReduction,
+                                    mass, texture, model, animation,
+                                    attachments
+                            ), tab));
+            return items;
+        }
+    }
+
+    public static class HelmetAdapter implements IAssetManager.GeneratableItem {
+        @Override
+        public <T extends ItemPOJO.Armor> LinkedHashSet<GenerationRecord<?>> deserializeItems(T data, String tab) {
+            LinkedHashSet<GenerationRecord<?>> items = new LinkedHashSet<>();
+            if (getMapper(data).type != IEquipmentTypeTag.EquipmentType.HELMET) return items;
+            String id = data.id;
+            float bluntDamage = data.hurtModifier.bluntMultiplier;
+            float penetrateDamage = data.hurtModifier.penetrateMultiplier;
+            float ricochetDamage = data.hurtModifier.ricochetMultiplier;
+            int defense = data.defense;
+            int absorb = data.protectionClass;
+            float durabilityLossProvider = data.durabilityLossModifier;
+            int defaultDurability = data.defaultDurability;
+            ResourceLocation texture = new ResourceLocation(ZeroContact.MOD_ID, data.texture);
+            ResourceLocation model = new ResourceLocation(ZeroContact.MOD_ID, data.model);
+            ResourceLocation animation = new ResourceLocation(ZeroContact.MOD_ID, data.animation);
+            List<MobEffect> immuneEffects = data.immuneEffects.stream()
+                    .map(s -> ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(s)))
+                    .filter(Objects::nonNull)
+                    .toList();
+            List<ItemPOJO.Armor.Attachments> attachments = data.attachments;
+            items.add(
+                    new GenerationRecord<>(
+                            id,
+                            new GenerateHelmetGeoImpl(
+                                    id,
+                                    ArmorItem.Type.HELMET,
+                                    texture,
+                                    model,
+                                    animation,
+                                    defense,
+                                    absorb,
+                                    bluntDamage,
+                                    penetrateDamage,
+                                    ricochetDamage,
+                                    durabilityLossProvider,
+                                    defaultDurability,
+                                    IEquipmentTypeTag.EquipmentType.HELMET,
+                                    immuneEffects,
+                                    attachments
+                            ), tab));
+            return items;
+        }
+    }
+
+    public static class MaskAdapter implements IAssetManager.GeneratableItem {
+        @Override
+        public <T extends ItemPOJO.Armor> LinkedHashSet<GenerationRecord<?>> deserializeItems(T data, String tab) {
+            LinkedHashSet<GenerationRecord<?>> items = new LinkedHashSet<>();
+            if (getMapper(data).type != IEquipmentTypeTag.EquipmentType.MASK) return items;
+            String id = data.id;
+            float bluntDamage = data.hurtModifier.bluntMultiplier;
+            float penetrateDamage = data.hurtModifier.penetrateMultiplier;
+            float ricochetDamage = data.hurtModifier.ricochetMultiplier;
+            int defense = data.defense;
+            int absorb = data.protectionClass;
+            float durabilityLossProvider = data.durabilityLossModifier;
+            int defaultDurability = data.defaultDurability;
+            ResourceLocation texture = new ResourceLocation(ZeroContact.MOD_ID, data.texture);
+            ResourceLocation model = new ResourceLocation(ZeroContact.MOD_ID, data.model);
+            ResourceLocation animation = new ResourceLocation(ZeroContact.MOD_ID, data.animation);
+            List<MobEffect> immuneEffects = data.immuneEffects.stream()
+                    .map(s -> ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(s)))
+                    .filter(Objects::nonNull)
+                    .toList();
+            List<ItemPOJO.Armor.Attachments> attachments = data.attachments;
+            items.add(
+                    new GenerationRecord<>(
+                            id,
+                            new GenerateHelmetGeoImpl(
+                                    id,
+                                    ArmorItem.Type.HELMET,
+                                    texture,
+                                    model,
+                                    animation,
+                                    defense,
+                                    absorb,
+                                    bluntDamage,
+                                    penetrateDamage,
+                                    ricochetDamage,
+                                    durabilityLossProvider,
+                                    defaultDurability,
+                                    IEquipmentTypeTag.EquipmentType.MASK,
+                                    immuneEffects,
+                                    attachments
+                            ), tab));
+            return items;
+        }
+    }
+
+    public static class UniformTopAdapter implements IAssetManager.GeneratableItem {
+
+        @Override
+        public <T extends ItemPOJO.Armor> LinkedHashSet<GenerationRecord<?>> deserializeItems(T data, String tab) {
+            LinkedHashSet<GenerationRecord<?>> items = new LinkedHashSet<>();
+            if (getMapper(data).type != IEquipmentTypeTag.EquipmentType.UNIFORM_TOP) return items;
+            String id = data.id;
+            int defaultDurability = data.defaultDurability;
+            ResourceLocation texture = new ResourceLocation(ZeroContact.MOD_ID, data.texture);
+            ResourceLocation model = new ResourceLocation(ZeroContact.MOD_ID, data.model);
+            ResourceLocation animation = new ResourceLocation(ZeroContact.MOD_ID, data.animation);
+            items.add(new GenerationRecord<>(id, new GenerateUniformTopGeoImpl(id, defaultDurability, texture, model, animation), tab));
+            return items;
+        }
+    }
+
+    public static class UniformPantsAdapter implements IAssetManager.GeneratableItem {
+
+        @Override
+        public <T extends ItemPOJO.Armor> LinkedHashSet<GenerationRecord<?>> deserializeItems(T data, String tab) {
+            LinkedHashSet<GenerationRecord<?>> items = new LinkedHashSet<>();
+            if (getMapper(data).type != IEquipmentTypeTag.EquipmentType.UNIFORM_PANTS) return items;
+            String id = data.id;
+            int defaultDurability = data.defaultDurability;
+            ResourceLocation texture = new ResourceLocation(ZeroContact.MOD_ID, data.texture);
+            ResourceLocation model = new ResourceLocation(ZeroContact.MOD_ID, data.model);
+            ResourceLocation animation = new ResourceLocation(ZeroContact.MOD_ID, data.animation);
+            items.add(new GenerationRecord<>(id, new GenerateUniformPantsGeoImpl(id, defaultDurability, texture, model, animation), tab));
+            return items;
+        }
+    }
+
+    public static class ArmbandAdapter implements IAssetManager.GeneratableItem {
+
+        @Override
+        public <T extends ItemPOJO.Armor> LinkedHashSet<GenerationRecord<?>> deserializeItems(T data, String tab) {
+            LinkedHashSet<GenerationRecord<?>> items = new LinkedHashSet<>();
+            if (getMapper(data).type != IEquipmentTypeTag.EquipmentType.ARMBAND) return items;
+            String id = data.id;
+            int defaultDurability = data.defaultDurability;
+            ResourceLocation texture = new ResourceLocation(ZeroContact.MOD_ID, data.texture);
+            ResourceLocation model = new ResourceLocation(ZeroContact.MOD_ID, data.model);
+            ResourceLocation animation = new ResourceLocation(ZeroContact.MOD_ID, data.animation);
+            items.add(new GenerationRecord<>(id, new GenerateUniformArmbandGeoImpl(id, defaultDurability, texture, model, animation), tab));
+            return items;
+        }
+    }
+
+    public static class AmmoAdapter implements IAssetManager.GeneratableItem {
+        @Override
+        public <T> LinkedHashSet<GenerationRecord<?>> deserializeItems(T data, String tab) {
+            LinkedHashSet<GenerationRecord<?>> items = new LinkedHashSet<>();
+            if (!(data instanceof AmmoDataPOJO ammoData)) return items;
+            items.add(new GenerationRecord<>(ammoData.variant, new GenerateAmmo(ammoData.toCaliber()), tab));
+            return items;
+        }
+    }
+
+    public static class BackpackAdapter implements IAssetManager.GeneratableItem {
+        @Override
+        public <T> LinkedHashSet<GenerationRecord<?>> deserializeItems(T data, String tab) {
+            LinkedHashSet<GenerationRecord<?>> items = new LinkedHashSet<>();
+            if (!(data instanceof ItemPOJO.Loadout loadout)) return items;
+            if (!getMapper(data).type.equals(IEquipmentTypeTag.EquipmentType.BACKPACK)) return items;
+            String id = loadout.id;
+            int containerSize = loadout.containerSize;
+            ResourceLocation texture = new ResourceLocation(ZeroContact.MOD_ID, loadout.texture);
+            ResourceLocation model = new ResourceLocation(ZeroContact.MOD_ID, loadout.model);
+            ResourceLocation animation = new ResourceLocation(ZeroContact.MOD_ID, loadout.animation);
+            items.add(new GenerationRecord<>(id, new BaseBackpack(texture, model, animation, containerSize), tab));
+            return items;
+        }
+    }
+
+    public static class RigsAdapter implements IAssetManager.GeneratableItem {
+        @Override
+        public <T> LinkedHashSet<GenerationRecord<?>> deserializeItems(T data, String tab) {
+            LinkedHashSet<GenerationRecord<?>> items = new LinkedHashSet<>();
+            if (!(data instanceof ItemPOJO.Loadout loadout)) return items;
+            if (!getMapper(data).type.equals(IEquipmentTypeTag.EquipmentType.RIGS)) return items;
+            String id = loadout.id;
+            int containerSize = loadout.containerSize;
+            ResourceLocation texture = new ResourceLocation(ZeroContact.MOD_ID, loadout.texture);
+            ResourceLocation model = new ResourceLocation(ZeroContact.MOD_ID, loadout.model);
+            ResourceLocation animation = new ResourceLocation(ZeroContact.MOD_ID, loadout.animation);
+            items.add(new GenerationRecord<>(id, new BaseRigs(texture, model, animation, containerSize), tab));
+            return items;
+        }
+    }
+
+    public static class ModuleAdapter implements IAssetManager.GeneratableItem {
+        @Override
+        public <T> LinkedHashSet<GenerationRecord<?>> deserializeItems(T data, String tab) {
+            LinkedHashSet<GenerationRecord<?>> items = new LinkedHashSet<>();
+            if (!(data instanceof ModularPOJO modular)) return items;
+            ResourceLocation id = new ResourceLocation(ZeroContact.MOD_ID, modular.id);
+            int durability = modular.durability;
+            ResourceLocation texture = new ResourceLocation(ZeroContact.MOD_ID, modular.texture);
+            ResourceLocation model = new ResourceLocation(ZeroContact.MOD_ID, modular.model);
+            ResourceLocation animation = new ResourceLocation(ZeroContact.MOD_ID, modular.animation);
+            MountCategory moduleType = modular.getMountCategory();
+            ResourceLocation trait = modular.getTrait();
+            if (data instanceof ModularNVGPOJO modularNVGPOJO) {
+                ResourceLocation vignette = new ResourceLocation(ZeroContact.MOD_ID, modularNVGPOJO.vignette);
+                INvg.Type nvgType = Arrays.stream(INvg.Type.values()).filter(t -> t.name().equals(modularNVGPOJO.color.toUpperCase())).findAny().orElse(INvg.Type.GREEN);
+                items.add(
+                        new GenerationRecord<Item>(
+                                modular.id,
+                                new NVG(
+                                        durability,
+                                        texture,
+                                        model,
+                                        animation
+                                ) {
+                                    @Override
+                                    public ResourceLocation getVignette() {
+                                        return vignette;
+                                    }
+
+                                    @Override
+                                    public INvg.Type getNVGType() {
+                                        return nvgType;
+                                    }
+                                },
+                                tab
+                        )
+                );
+            } else if (data instanceof ModularHeadsetPOJO headsetPOJO) {
+                AudioProfile audioProfile = headsetPOJO.audioProfile;
+                items.add(
+                        new GenerationRecord<Item>(
+                                modular.id,
+                                new Headset(
+                                        "",
+                                        durability,
+                                        texture,
+                                        model,
+                                        animation,
+                                        audioProfile
+                                ),
+                                tab
+                        )
+                );
+            } else {
+                items.add(
+                        new GenerationRecord<Item>(
+                                modular.id,
+                                new GenerateModuleGeoImpl(
+                                        durability,
+                                        trait,
+                                        texture,
+                                        model,
+                                        animation
+                                ),
+                                tab
+                        )
+                );
+            }
+
+            ModuleRegistry.registerCategory(id, moduleType);
+            return items;
+        }
+    }
+}

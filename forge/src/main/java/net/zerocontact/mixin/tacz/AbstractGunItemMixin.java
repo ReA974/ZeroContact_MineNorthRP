@@ -1,5 +1,8 @@
 package net.zerocontact.mixin.tacz;
 
+import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.tacz.guns.api.TimelessAPI;
 import com.tacz.guns.api.item.IAmmo;
 import com.tacz.guns.api.item.IAmmoBox;
@@ -7,76 +10,174 @@ import com.tacz.guns.api.item.IGun;
 import com.tacz.guns.api.item.gun.AbstractGunItem;
 import com.tacz.guns.resource.index.CommonGunIndex;
 import com.tacz.guns.resource.pojo.data.gun.InaccuracyType;
-import com.tacz.guns.util.AttachmentDataUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.items.IItemHandler;
+import net.zerocontact.api.caliber.ICartridgeHolder;
+import net.zerocontact.caliber.AmmoInjector;
+import net.zerocontact.caliber.compat.MagazineReloadCheck;
+import net.zerocontact.caliber.compat.ReloadManager;
 import net.zerocontact.capability.CapabilityRegistries;
-import net.zerocontact.events.EventUtil;
+import net.zerocontact.compat.MagazinesCompatHandler;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.zerocontact.item.ammo.GenerateAmmo;
 
 @Mixin(AbstractGunItem.class)
-public class AbstractGunItemMixin {
-    @Unique
-    private LivingEntity zeroContact$shooter;
+public abstract class AbstractGunItemMixin implements IGun {
+
+    @Shadow(remap = false)
+    public abstract boolean useInventoryAmmo(ItemStack gun);
+
+    @WrapMethod(method = "canReload", remap = false)
+    private boolean zeroContact$checkMagazineReloadInventory(LivingEntity shooter, ItemStack gunItem,
+                                                             Operation<Boolean> original) {
+        // The magazine mod's canReload injector queries the player's capability directly.
+        return MagazineReloadCheck.withShooter(shooter, () -> original.call(shooter, gunItem));
+    }
+
 
     @Inject(method = "canReload", at = @At("HEAD"), remap = false, cancellable = true)
     public void zeroContact$canReload(LivingEntity shooter, ItemStack gunItem, CallbackInfoReturnable<Boolean> cir) {
-        this.zeroContact$shooter = shooter;
-        ItemStack rigsStack = EventUtil.getCuriosStackFirst(shooter, "rigs");
-        //Essential check since a NPE occurred here but in MinecraftOrRainbow client.
-        if (rigsStack == null) return;
-        zeroContact$grantVanillaFullAmmoReload(gunItem, cir);
-        rigsStack.getCapability(ForgeCapabilities.ITEM_HANDLER, null).ifPresent(iItemHandler -> {
-            for (int i = 0; i < iItemHandler.getSlots(); i++) {
-                ItemStack checkAmmoStack = iItemHandler.getStackInSlot(i);
-                if (checkAmmoStack.getItem() instanceof IAmmo iAmmo && iAmmo.isAmmoOfGun(gunItem, checkAmmoStack)) {
-                    cir.setReturnValue(true);
-                    return;
-                }
-                if (checkAmmoStack.getItem() instanceof IAmmoBox iAmmoBox && iAmmoBox.isAmmoBoxOfGun(gunItem, checkAmmoStack)) {
+        ResourceLocation gunId = this.getGunId(gunItem);
+        CommonGunIndex gunIndex = TimelessAPI.getCommonGunIndex(gunId).orElse(null);
+        if (gunIndex == null) return;
 
+        ReloadManager.ReloadInventory zeroContact$reloadInventory = ReloadManager.resolveReloadInv(shooter);
+        boolean magazineCompat = MagazinesCompatHandler.get().getCompat().map(compat->compat.isMagazineCompatibleWithGun(gunItem)).orElse(false);
+
+        if (!magazineCompat) {
+
+            if (this.useInventoryAmmo(gunItem) || gunIndex.getGunData().getReloadData().isInfinite() || this.useDummyAmmo(gunItem)) {
+                return;
+            }
+
+            for (int i = 0; i < zeroContact$reloadInventory.rawHandler().getSlots(); i++) {
+                if (zeroContact$sameOrSelectedCaliber(shooter, gunItem, zeroContact$reloadInventory.rawHandler(), i)) {
                     cir.setReturnValue(true);
                     return;
                 }
             }
-        });
+            cir.setReturnValue(false);
+            zeroContact$sendFailMsg(shooter);
+        }
+    }
+
+    @Inject(method = "hasInventoryAmmo", remap = false, at = @At("HEAD"), cancellable = true)
+    private void replaceAmmoCheck(LivingEntity shooter, ItemStack gun, boolean needCheckAmmo, CallbackInfoReturnable<Boolean> cir) {
+        if (!this.useInventoryAmmo(gun)) {
+            cir.setReturnValue(false);
+        } else if (!needCheckAmmo) {
+            cir.setReturnValue(true);
+        } else if (this.useDummyAmmo(gun)) {
+            cir.setReturnValue(this.getDummyAmmoAmount(gun) > 0);
+        } else {
+            ReloadManager.ReloadInventory reloadInv = ReloadManager.resolveReloadInv(shooter);
+            for (int i = 0; i < reloadInv.rawHandler().getSlots(); i++) {
+                if (zeroContact$sameOrSelectedCaliber(shooter, gun, reloadInv.rawHandler(), i)) {
+                    cir.setReturnValue(true);
+                    return;
+                }
+            }
+            zeroContact$sendFailMsg(shooter);
+            cir.setReturnValue(false);
+        }
+        cir.cancel();
     }
 
     @Unique
-    private static void zeroContact$grantVanillaFullAmmoReload(ItemStack gunItem, CallbackInfoReturnable<Boolean> cir) {
-        IGun gun = IGun.getIGunOrNull(gunItem);
-        if (gun == null) {
-            cir.setReturnValue(false);
-            return;
+    private static boolean zeroContact$sameOrSelectedCaliber(
+            LivingEntity shooter,
+            ItemStack gunItem,
+            IItemHandler iItemHandler,
+            int i) {
+
+        ItemStack checkAmmoStack = iItemHandler.getStackInSlot(i);
+        String selectedAmmoId = gunItem
+                .getCapability(CapabilityRegistries.CARTRIDGE)
+                .map(cap -> cap.getClientSelectedAmmoVariant(gunItem))
+                .orElse("");
+
+        if (checkAmmoStack.getItem() instanceof IAmmo ammo
+                && ammo.isAmmoOfGun(gunItem, checkAmmoStack)) {
+
+            AmmoInjector.AmmoContext gunCtx = AmmoInjector.read(gunItem);
+            AmmoInjector.AmmoContext ammoCtx = AmmoInjector.read(checkAmmoStack);
+
+            if (gunCtx.isEmpty() || ammoCtx.isEmpty()) {
+                return false;
+            }
+
+            ResourceLocation actualAmmoId = ammo.getAmmoId(checkAmmoStack);
+            ResourceLocation itemId =
+                    ForgeRegistries.ITEMS.getKey(checkAmmoStack.getItem());
+
+            // Exact data-driven TaCZ ammo ID.
+            if (!selectedAmmoId.isEmpty()
+                    && actualAmmoId != null
+                    && selectedAmmoId.equals(actualAmmoId.toString())) {
+                return true;
+            }
+
+            // Preserve registered ZeroContact GenerateAmmo variants.
+            if (!selectedAmmoId.isEmpty()
+                    && checkAmmoStack.getItem() instanceof GenerateAmmo
+                    && itemId != null
+                    && selectedAmmoId.equals(itemId.toString())) {
+                return true;
+            }
+
+            // Preserve the existing caliber/variant matching behavior.
+            return gunCtx.caliber().equals(ammoCtx.caliber())
+                    || (!selectedAmmoId.isEmpty()
+                    && selectedAmmoId.equals(ammoCtx.caliber().variant()));
         }
-        ResourceLocation gunId = gun.getGunId(gunItem);
-        CommonGunIndex gunIndex = TimelessAPI.getCommonGunIndex(gunId).orElse(null);
-        if (gunIndex == null) {
-            cir.setReturnValue(false);
-            return;
+
+        if (checkAmmoStack.getItem() instanceof IAmmoBox ammoBox
+                && ammoBox.isAmmoBoxOfGun(gunItem, checkAmmoStack)) {
+
+            AmmoInjector.AmmoContext gunCtx = AmmoInjector.read(gunItem);
+            AmmoInjector.AmmoContext ammoCtx = AmmoInjector.read(checkAmmoStack);
+
+            if (gunCtx.isEmpty() || ammoCtx.isEmpty()) {
+                return false;
+            }
+
+            if (ammoBox.isAllTypeCreative(checkAmmoStack)) {
+                return true;
+            }
+
+            // Keep the pre-existing behavior for ordinary ammo boxes.
+            return gunCtx.caliber().equals(ammoCtx.caliber())
+                    || (!selectedAmmoId.isEmpty()
+                    && selectedAmmoId.equals(ammoCtx.caliber().variant()));
         }
-        int currentAmmoCount = gun.getCurrentAmmoCount(gunItem);
-        int maxAmmoCount = AttachmentDataUtils.getAmmoCountWithAttachment(gunItem, gunIndex.getGunData());
-        if (currentAmmoCount == maxAmmoCount) {
-            cir.setReturnValue(true);
+
+        return false;
+    }
+
+    @Unique
+    private static void zeroContact$sendFailMsg(LivingEntity shooter) {
+        if (shooter instanceof Player player) {
+            if (player.isCreative()) return;
+            player.displayClientMessage(
+                    Component.translatable("msg.zerocontact.no_matching_ammunition").withStyle(ChatFormatting.RED)
+                    , true
+            );
         }
     }
 
     @ModifyArg(method = "findAndExtractInventoryAmmo", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/items/IItemHandler;extractItem(IIZ)Lnet/minecraft/world/item/ItemStack;"), remap = false)
-    public boolean zeroContact$findAndExtractInventoryAmmo(boolean simulate) {
-        if (zeroContact$shooter instanceof ServerPlayer player && player.isCreative()) {
-            return true;
-        }
-        return simulate;
+    public boolean zeroContact$findAndExtractInventoryAmmo(boolean simulate, @Local(argsOnly = true) ItemStack gunItem) {
+        return gunItem.getCapability(CapabilityRegistries.CARTRIDGE).map(ICartridgeHolder::getCreativeHandling).orElse(simulate);
     }
 
     @ModifyVariable(
@@ -86,12 +187,12 @@ public class AbstractGunItemMixin {
             ordinal = 1,
             remap = false
     )
-    private float zeroContact$modifyInaccuracy(float original) {
-        ItemStack gunStack = zeroContact$shooter.getMainHandItem();
+    private float zeroContact$modifyInaccuracy(float original, @Local(argsOnly = true) LivingEntity shooter) {
+        ItemStack gunStack = shooter.getMainHandItem();
         if (IGun.getIGunOrNull(gunStack) == null) return original;
         return gunStack.getCapability(CapabilityRegistries.CARTRIDGE).map(
                 cap -> {
-                    InaccuracyType type = InaccuracyType.getInaccuracyType(zeroContact$shooter);
+                    InaccuracyType type = InaccuracyType.getInaccuracyType(shooter);
                     return cap.getInaccuracy(gunStack).get(type);
                 }
         ).orElse(original);

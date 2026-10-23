@@ -1,0 +1,12 @@
+{
+  "type": "module_nvg",
+  "id": "sb_gpnvg",
+  "mount_type": "night_vision",
+  "module_trait": "nvg",
+  "durability": 12000,
+  "texture": "textures/sb_gpnvg.png",
+  "model": "geo/sb_gpnvg.geo.json",
+  "animation": "animations/nvg_pvs31.animation.json",
+  "color": "WHITE",
+  "vignette": "textures/gui/gpnvg.png"
+}

@@ -11,12 +11,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.zerocontact.api.ICombatArmorItem;
-import net.zerocontact.api.HelmetInfoProvider;
+import net.zerocontact.api.armor.ICombatArmorItem;
+import net.zerocontact.api.armor.HelmetInfoProvider;
 import net.zerocontact.caliber.AmmoInjector;
 import net.zerocontact.caliber.BulletBinder;
-import net.zerocontact.caliber.CaliberVariantDamageHelper;
-import net.zerocontact.compat.FirstAidCompatHandler;
+import net.zerocontact.caliber.CaliberHelper;
+import net.zerocontact.caliber.damage.HitUtil;
+import net.zerocontact.caliber.damage.ZDamageTypes;
 import net.zerocontact.registries.ModSoundEventsReg;
 
 import java.util.Optional;
@@ -53,11 +54,12 @@ public class PlateDamageEvent {
         if (!stackInSlot.isEmpty() && (damageSource.is(ModDamageTypes.BULLETS_TAG) || damageSource.is(ZDamageTypes.ZC_DAMAGE))) {
             if (stackInSlot.getItem() instanceof ICombatArmorItem armorProvider) {
                 if (!(damageSource.getDirectEntity() instanceof EntityKineticBullet bullet)) return;
+
                 AmmoInjector.AmmoContext ammoContext = BulletBinder.getContext(bullet);
                 float caliberArmorDamage;
                 int hits = stackInSlot.getOrCreateTag().getInt("hits");
                 if (ammoContext != null) {
-                    CaliberVariantDamageHelper.Caliber caliber = ammoContext.caliber();
+                    CaliberHelper.Caliber caliber = ammoContext.caliber();
                     if (caliber.armorDamage() != 0) {
                         caliberArmorDamage = getArmorDamage(caliber, armorProvider, caliber.armorDamage());
                     } else {
@@ -73,26 +75,20 @@ public class PlateDamageEvent {
 
                 hits++;
                 stackInSlot.getOrCreateTag().putInt("hits", hits);
-                EntityKineticBullet.EntityResult result = EventUtil.getHitResult(damageSource);
 
-                if (result != null && result.isHeadshot()) {
-                    return;
-                }
-
-                FirstAidCompatHandler firstAidCompatHandler = FirstAidCompatHandler.create(livingEntity, damageSource);
-                if (firstAidCompatHandler != null && firstAidCompatHandler.getLimbsApplicable()) return;
                 stackInSlot.hurtAndBreak(durabilityLossAmount, livingEntity, holder -> holder.level().playSound(null, holder.blockPosition(), ModSoundEventsReg.ARMOR_BROKEN_PLATE, SoundSource.PLAYERS));
             }
         }
     }
 
-    private static float getArmorDamage(CaliberVariantDamageHelper.Caliber caliber, ICombatArmorItem provider, float baseDamage) {
+    private static float getArmorDamage(CaliberHelper.Caliber caliber, ICombatArmorItem provider, float baseDamage) {
         int absorb = provider.getAbsorb() == 0 ? 1 : provider.getAbsorb();
         baseDamage = baseDamage <= 0 ? (float) 0.01 : baseDamage;
         return caliber.penetrationClass() * baseDamage * ((float) caliber.penetrationClass() / absorb);
     }
 
     public static void damageHelmet(EntityHurtByGunEvent event) {
+        if (!(event instanceof EntityHurtByGunEvent.Pre)) return;
         boolean isHeadshot = event.isHeadShot();
         if (!isHeadshot) return;
         Optional<Entity> entity = Optional.ofNullable(event.getHurtEntity());
@@ -113,6 +109,12 @@ public class PlateDamageEvent {
     }
 
     public static EventResult register(LivingEntity entity, DamageSource damageSource, float amount) {
-        return modify(entity, damageSource, amount, EventUtil.getHitBodyPartStack(entity, damageSource)) ? EventResult.interruptFalse() : EventResult.pass();
+        if (entity.level().isClientSide
+                || !(damageSource.is(ModDamageTypes.BULLETS_TAG) || damageSource.is(ZDamageTypes.ZC_DAMAGE))) {
+            return EventResult.pass();
+        }
+        ResolveHitBodyPartEvent.HitPart part = HitUtil.resolveHitPart(entity, damageSource);
+        if (part.hitPart() == ResolveHitBodyPartEvent.HitPartEnum.HEAD || part.isLimb()) return EventResult.pass();
+        return modify(entity, damageSource, amount, HitUtil.getHitBodyPartStack(entity, damageSource, part)) ? EventResult.interruptFalse() : EventResult.pass();
     }
 }

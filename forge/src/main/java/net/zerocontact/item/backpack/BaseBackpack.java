@@ -2,14 +2,13 @@ package net.zerocontact.item.backpack;
 
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
@@ -19,11 +18,13 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
-import net.zerocontact.api.IEquipmentTypeTag;
-import net.zerocontact.api.Toggleable;
-import net.zerocontact.client.menu.BackpackContainerMenu;
+import net.zerocontact.api.armor.IEquipmentTypeTag;
+import net.zerocontact.api.armor.Toggleable;
+import net.zerocontact.container.BackpackInventory;
+import net.zerocontact.curios.CuriosConstants;
+import net.zerocontact.menu.BackpackContainerMenu;
 import net.zerocontact.item.forge.AbstractGenerateGeoCurioItemImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,9 +32,7 @@ import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.List;
-import java.util.Optional;
 
-import static net.zerocontact.events.EventUtil.getAllyPlayer;
 import static net.zerocontact.events.EventUtil.isLookAtTargetBack;
 
 public class BaseBackpack extends AbstractGenerateGeoCurioItemImpl implements IEquipmentTypeTag, Toggleable.Backpack {
@@ -88,27 +87,14 @@ public class BaseBackpack extends AbstractGenerateGeoCurioItemImpl implements IE
         return 0;
     }
 
-    private ListTag readInvTags(ItemStack stack) {
-        if (stack.getItem() instanceof BaseBackpack) {
-            Optional<CompoundTag> inventoryTag = Optional.ofNullable(stack.getTag());
-            if (inventoryTag.isPresent()) {
-                return inventoryTag.get().getList("inventory", Tag.TAG_COMPOUND);
-            }
-        }
-        return new ListTag();
-    }
-
     @Override
     public @Nullable ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
-        final ItemStackHandler container = new ItemStackHandler(containerSize);
+        // Load lazily, after ItemStack has received its NBT, and keep the same live inventory.
+        LazyOptional<IItemHandler> inventory = LazyOptional.of(() -> new BackpackInventory(stack, containerSize));
         return new ICapabilityProvider() {
             @Override
             public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction arg) {
-                ListTag listTag = readInvTags(stack);
-                CompoundTag compoundTag = new CompoundTag();
-                compoundTag.put("Items", listTag);
-                container.deserializeNBT(compoundTag);
-                return ForgeCapabilities.ITEM_HANDLER.orEmpty(capability, LazyOptional.of(() -> container));
+                return ForgeCapabilities.ITEM_HANDLER.orEmpty(capability, inventory);
             }
         };
     }
@@ -121,13 +107,13 @@ public class BaseBackpack extends AbstractGenerateGeoCurioItemImpl implements IE
         return super.canEquipFromUse(slotContext, stack);
     }
 
-    public static void whetherOpenAllyScreen(Player player) {
+    public static void openAllysBackpack(Player player, Entity target) {
         if (player instanceof ServerPlayer serverPlayer) {
-            ServerPlayer targetEntity = getAllyPlayer(player);
+            if (!(target instanceof Player targetEntity)) return;
             if (isLookAtTargetBack(serverPlayer, targetEntity) && player.isCrouching()) {
                 CuriosApi.getCuriosInventory(targetEntity)
                         .ifPresent(itemHandler ->
-                                itemHandler.getStacksHandler("backpack").ifPresent(stacksHandler -> {
+                                itemHandler.getStacksHandler(CuriosConstants.BACKPACK).ifPresent(stacksHandler -> {
                                     ItemStack backpackStack = stacksHandler.getStacks().getStackInSlot(0);
                                     if (backpackStack.getItem() instanceof BaseBackpack backpack && player.isCrouching())
                                         backpack.callOpenScreen(serverPlayer, BackpackContainerMenu.TriggerSource.ALLY, backpackStack);
@@ -139,6 +125,6 @@ public class BaseBackpack extends AbstractGenerateGeoCurioItemImpl implements IE
 
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag isAdvanced) {
-        IEquipmentTypeTag.super.appendHoverText(stack,level,tooltipComponents,isAdvanced);
+        IEquipmentTypeTag.super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
     }
 }

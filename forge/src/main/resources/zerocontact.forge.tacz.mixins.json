@@ -10,11 +10,16 @@
     "ClientGunToolTipMixin",
     "EntityKineticBulletAccessor",
     "EntityKineticBulletMixin",
+    "GunAnimationStateContextMixin",
     "GunHudOverlayMixin",
     "ItemStackMixin",
-    "ModernKineticGunScriptAPIMixin"
+    "ModernKineticGunScriptAPIMixin",
+    "SoundManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "GunSoundInstanceMixin"
+  ]
 }

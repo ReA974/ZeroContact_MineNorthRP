@@ -1,0 +1,100 @@
+{
+  "blend": {
+    "func": "add",
+    "srcrgb": "one",
+    "dstrgb": "zero"
+  },
+  "vertex": "blit",
+  "fragment": "zerocontact:thermal",
+  "attributes": [
+    "Position"
+  ],
+  "samplers": [
+    {
+      "name": "DiffuseSampler"
+    },
+    {
+      "name": "HeatSampler"
+    },
+    {
+      "name": "SceneDepthSampler"
+    },
+    {
+      "name": "WorldDepthSampler"
+    }
+  ],
+  "uniforms": [
+    {
+      "name": "ProjMat",
+      "type": "matrix4x4",
+      "count": 16,
+      "values": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "name": "OutSize",
+      "type": "float",
+      "count": 2,
+      "values": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "Time",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.0
+      ]
+    },
+    {
+      "name": "ColorMode",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.0
+      ]
+    },
+    {
+      "name": "BackgroundGain",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.38
+      ]
+    },
+    {
+      "name": "NoiseStrength",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.012
+      ]
+    },
+    {
+      "name": "VignetteStrength",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.10
+      ]
+    }
+  ]
+}

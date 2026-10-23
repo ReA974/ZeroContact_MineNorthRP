@@ -1,15 +1,13 @@
 package net.zerocontact.datagen.loader;
 
 import com.google.gson.JsonSyntaxException;
-import net.zerocontact.api.IAssetManager;
-import net.zerocontact.api.IContentLoader;
-import net.zerocontact.caliber.CaliberRegistry;
+import net.zerocontact.api.datagen.IAssetManager;
+import net.zerocontact.api.datagen.IContentLoader;
+import net.zerocontact.caliber.registry.CaliberRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.zerocontact.ZeroContactLogger;
-import net.zerocontact.datagen.AmmoDataPOJO;
-import net.zerocontact.datagen.GearRecipeData;
-import net.zerocontact.datagen.ItemGenData;
-import net.zerocontact.datagen.Zpack;
+import net.zerocontact.caliber.registry.MobRuleRegistry;
+import net.zerocontact.datagen.model.*;
 import net.zerocontact.item.block.WorkBenchEntity;
 import net.zerocontact.lua.ZCLuaEngine;
 
@@ -30,19 +28,19 @@ public class ZContentLoader implements IContentLoader {
     private static final String AMMO_DEF_PATH = "data/" + MOD_ID + "/ammoDefinitions";
     private static final String AMMO_SCRIPT_PATH = "data/" + MOD_ID + "/scripts";
     private static final String RECIPES_PATH = "data/" + MOD_ID + "/gear_recipes";
+    private static final String MOB_RULES_PATH = "data/" + MOD_ID + "/rule/rules.json";
 
     public ZContentLoader(IAssetManager assetManager) {
         this.assetManager = assetManager;
     }
 
 
-    @Override
     public void loadItems(Set<Zpack> packs) {
         packs.forEach(pack -> {
             Path itemPath = pack.outerPack().resolve(ITEM_PATH);
             try {
                 List<Path> itemList = assetManager.getJsonListPathsFromPath(itemPath);
-                assetManager.deserializeFromJsonList(itemList, assetManager.getGson(), ItemGenData.class, (data, __) -> itemGenData.put(data, pack.tab()));
+                assetManager.deserializeFromJsonList(itemList, assetManager.getGson(), ItemPOJO.class, (data, __) -> itemGenData.put(data, pack.tab()));
             } catch (IOException e) {
                 ZeroContactLogger.LOG.error("Failed to load item data: ", e);
             } catch (JsonSyntaxException jsonSyntaxException) {
@@ -51,7 +49,6 @@ public class ZContentLoader implements IContentLoader {
         });
     }
 
-    @Override
     public void loadBallistics(Set<Zpack> packs) {
         packs.forEach(pack -> {
             Path ballisticPath = pack.outerPack().resolve(AMMO_DEF_PATH);
@@ -74,7 +71,6 @@ public class ZContentLoader implements IContentLoader {
         });
     }
 
-    @Override
     public void loadScripts(Set<Zpack> packs) {
         ZCLuaEngine.ZcLuaInstance luaEngine = ZCLuaEngine.getInstance();
         Map<ResourceLocation, Path> loadedScripts = new HashMap<>();
@@ -155,9 +151,8 @@ public class ZContentLoader implements IContentLoader {
                 });
     }
 
-    @Override
     public void loadRecipes(Set<Zpack> packs) {
-        Map<String, List<GearRecipeData.IngredientItems>> merged = new HashMap<>();
+        Map<String, List<RecipePOJO.IngredientItems>> merged = new HashMap<>();
         for (Zpack pack : packs) {
             Path recipesPath = pack.outerPack().resolve(RECIPES_PATH);
             try {
@@ -165,11 +160,11 @@ public class ZContentLoader implements IContentLoader {
                 assetManager.deserializeFromJsonList(
                         recipePaths,
                         assetManager.getGson(),
-                        GearRecipeData.class,
+                        RecipePOJO.class,
                         (data, path) -> {
                             if (data == null || data.recipes == null) return;
                             boolean isDefault = path.getFileName().toString().equals(DEFAULT_RECIPE_NAME);
-                            for (GearRecipeData recipe : data.recipes) {
+                            for (RecipePOJO recipe : data.recipes) {
                                 if (isDefault) {
                                     merged.putIfAbsent(recipe.gearId, recipe.ingredientItems);
                                 } else {
@@ -186,7 +181,31 @@ public class ZContentLoader implements IContentLoader {
         }
 
         WorkBenchEntity.recipeData = merged.entrySet().stream()
-                .map(e -> new GearRecipeData(e.getKey(), e.getValue()))
+                .map(e -> new RecipePOJO(e.getKey(), e.getValue()))
                 .toList();
+    }
+
+    public void loadMobRules(Set<Zpack> packs) {
+        for (Zpack pack : packs) {
+            Path mobRulesPath = pack.outerPack().resolve(MOB_RULES_PATH);
+            try {
+                assetManager.deserializeFromManifest(
+                        mobRulesPath,
+                        assetManager.getGson(),
+                        MobRulesPOJO.class,
+                        MobRuleRegistry::register);
+            } catch (JsonSyntaxException | IOException e) {
+                ZeroContactLogger.LOG.error(e);
+            }
+        }
+    }
+
+    @Override
+    public void load(Set<Zpack> packs) {
+        loadItems(packs);
+        loadBallistics(packs);
+        loadRecipes(packs);
+        loadScripts(packs);
+        loadMobRules(packs);
     }
 }

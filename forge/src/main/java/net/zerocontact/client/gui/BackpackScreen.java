@@ -21,9 +21,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.zerocontact.client.interaction.KeyBindingHandler;
 import net.zerocontact.events.ClientForgeEventBus;
-import net.zerocontact.client.menu.BackpackContainerMenu;
+import net.zerocontact.menu.BackpackContainerMenu;
 import net.zerocontact.network.ModMessages;
-import net.zerocontact.network.NetworkHandler;
+import net.zerocontact.network.c2s.ToggleBackpackPacket;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -78,7 +78,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackContainerMen
         drawSlotBg(menu, guiGraphics);
         drawEquipmentLabel(guiGraphics);
         Optional.ofNullable(Minecraft.getInstance().player).ifPresent(
-                player -> InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, getGuiLeft() + 12, getGuiTop() + 88, 20, getGuiLeft() + 20 - mouseX, getGuiTop() + 58 - mouseY, player));
+                player -> InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, getGuiLeft() -48, guiHeightYMax, 64, getGuiLeft() + 20 - mouseX, getGuiTop() + 58 - mouseY, player));
     }
 
     private void drawEquipmentLabel(@NotNull GuiGraphics guiGraphics) {
@@ -188,6 +188,6 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackContainerMen
 
     private void closeBackpack() {
         Optional.ofNullable(Minecraft.getInstance().player).ifPresent(LocalPlayer::closeContainer);
-        ModMessages.sendToServer(new NetworkHandler.ToggleBackpackPacket(false));
+        ModMessages.sendToServer(new ToggleBackpackPacket(false));
     }
 }

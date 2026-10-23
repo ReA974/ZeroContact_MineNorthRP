@@ -145,5 +145,49 @@
         "type": "file"
       }
     ]
+  },
+  "nvg/buzz_out": {
+    "sounds": [
+      {
+        "name": "zerocontact:nvg/buzz_out",
+        "type": "file"
+      }
+    ]
+  },
+  "nvg/nvg_click": {
+    "sounds": [
+      {
+        "name": "zerocontact:nvg/nvg_click",
+        "type": "file"
+      }
+    ]
+  },
+  "pouch/map": {
+    "sounds": [
+      {
+        "name": "zerocontact:pouch/velcro",
+        "type": "file"
+      },
+      {
+        "name": "zerocontact:pouch/map_fold",
+        "type": "file"
+      }
+    ]
+  },
+  "beacon/switch": {
+    "sounds": [
+      {
+        "name": "zerocontact:beacon/button_click",
+        "type": "file"
+      }
+    ]
+  },
+  "navboard/switch": {
+    "sounds": [
+      {
+        "name": "zerocontact:pouch/iphone_lock",
+        "type": "file"
+      }
+    ]
   }
 }

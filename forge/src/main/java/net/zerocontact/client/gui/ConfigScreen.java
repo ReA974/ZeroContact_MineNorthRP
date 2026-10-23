@@ -6,14 +6,18 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.zerocontact.client.gui.components.ConfigOptionsList;
-import net.zerocontact.cofig.ModConfigs;
+import net.zerocontact.config.ModConfigs;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 public class ConfigScreen extends Screen {
+    public static final String CONFIG_ZEROCONTACT_CLIENT_TRAJECTORY_TOOLTIP = "config.zerocontact.client.trajectory_tooltip";
+    public static final String CONFIG_ZEROCONTACT_CLIENT_BULLET_SUPPRESSION = "config.zerocontact.client.bullet_suppression";
+    public static final String CONFIG_ZEROCONTACT_CLIENT_AMMO_TYPE_OVERLAY = "config.zerocontact.client.ammo_type_overlay";
+    public static final String CONFIG_ZEROCONTACT_CLIENT_AMMO_TYPE_TOOLTIP = "config.zerocontact.client.ammo_type_tooltip";
+    public static final String CONFIG_ZEROCONTACT_CLIENT_AUDIO_EFFECT = "config.zerocontact.client.audio_effect";
     private final Screen parentScreen;
-    private ConfigOptionsList configOptionsList;
 
     public ConfigScreen(Component title, Screen parentScreen) {
         super(title);
@@ -23,44 +27,43 @@ public class ConfigScreen extends Screen {
     @Override
     protected void init() {
         int y = 48;
-        this.configOptionsList = new ConfigOptionsList(this, minecraft, width, height, y, height - 48, 32);
+        ConfigOptionsList configOptionsList = new ConfigOptionsList(this, minecraft, width, height, y, height - 48, 32);
         ConfigOptionsList.Title clientCategory = new ConfigOptionsList.Title(Component.translatable("config.zerocontact.client"));
-        ConfigOptionsList.Title serverCategory = new ConfigOptionsList.Title(Component.translatable("config.zerocontact.server"));
         configOptionsList.add(clientCategory);
+
         configOptionsList.registerBoolEntry(
-                "config.zerocontact.client.trajectory_tooltip",
+                CONFIG_ZEROCONTACT_CLIENT_AUDIO_EFFECT,
+                font,
+                ModConfigs.CLIENT.audioEffect(),
+                ModConfigs.CLIENT_CONFIG_SPEC
+        );
+
+        configOptionsList.registerBoolEntry(
+                CONFIG_ZEROCONTACT_CLIENT_TRAJECTORY_TOOLTIP,
                 font,
                 ModConfigs.CLIENT.enableTrajectoryTooltip(),
                 ModConfigs.CLIENT_CONFIG_SPEC
         );
 
         configOptionsList.registerBoolEntry(
-                "config.zerocontact.client.bullet_suppression",
+                CONFIG_ZEROCONTACT_CLIENT_BULLET_SUPPRESSION,
                 font,
                 ModConfigs.CLIENT.enableBulletSuppression(),
                 ModConfigs.CLIENT_CONFIG_SPEC
         );
 
         configOptionsList.registerBoolEntry(
-                "config.zerocontact.client.ammo_type_overlay",
+                CONFIG_ZEROCONTACT_CLIENT_AMMO_TYPE_OVERLAY,
                 font,
                 ModConfigs.CLIENT.ammoTypeOverLay(),
                 ModConfigs.CLIENT_CONFIG_SPEC
         );
 
         configOptionsList.registerBoolEntry(
-                "config.zerocontact.client.ammo_type_tooltip",
+                CONFIG_ZEROCONTACT_CLIENT_AMMO_TYPE_TOOLTIP,
                 font,
                 ModConfigs.CLIENT.ammoTypeTooltip(),
                 ModConfigs.CLIENT_CONFIG_SPEC
-        );
-        configOptionsList.add(serverCategory);
-
-        configOptionsList.registerBoolEntry(
-                "config.zerocontact.server.universal_flesh",
-                font,
-                ModConfigs.SERVER.enableUniversalFleshDamage(),
-                ModConfigs.SERVER_CONFIG_SPEC
         );
 
         addRenderableWidget(configOptionsList);

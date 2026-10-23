@@ -1,6 +1,5 @@
 package net.zerocontact.events;
 
-import com.tacz.guns.entity.EntityKineticBullet;
 import com.tacz.guns.init.ModDamageTypes;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
@@ -12,7 +11,9 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.zerocontact.api.ICombatArmorItem;
+import net.zerocontact.api.armor.ICombatArmorItem;
+import net.zerocontact.caliber.damage.HitUtil;
+import net.zerocontact.caliber.damage.ZDamageTypes;
 import net.zerocontact.registries.ModSoundEventsReg;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -23,20 +24,20 @@ public class PlateEntityHurtSoundEvent {
         LivingEntity hurtEntity = hurtEvent.getEntity();
         ItemStack checkHelmetStack = hurtEntity.getItemBySlot(EquipmentSlot.HEAD);
         ItemStack checkArmorStack = hurtEntity.getItemBySlot(EquipmentSlot.CHEST);
-        EntityKineticBullet.EntityResult hitResult = EventUtil.getHitResult(source);
         Level level = hurtEntity.level();
         if (!(source.is(ModDamageTypes.BULLETS_TAG) || source.is(ZDamageTypes.ZC_DAMAGE))) return;
-        playSoundByPart(checkArmorStack, hitResult, level, hurtEntity, checkHelmetStack);
+        ResolveHitBodyPartEvent.HitPart hitPart = HitUtil.resolveHitPart(hurtEntity, source);
+        playSoundByPart(checkArmorStack, hitPart, level, hurtEntity, checkHelmetStack);
     }
 
-    private static void playSoundByPart(ItemStack checkArmorStack, EntityKineticBullet.EntityResult hitResult, Level level, LivingEntity hurtEntity, ItemStack checkHelmetStack) {
+    private static void playSoundByPart(ItemStack checkArmorStack, ResolveHitBodyPartEvent.HitPart hitPart, Level level, LivingEntity hurtEntity, ItemStack checkHelmetStack) {
         if (checkArmorStack.getItem() instanceof ICombatArmorItem) {
-            if (hitResult != null && !hitResult.isHeadshot()) {
+            if (hitPart.hitPart() == ResolveHitBodyPartEvent.HitPartEnum.TORSO) {
                 playHitSound(level, hurtEntity);
             }
         }
         if (checkHelmetStack.getItem() instanceof ICombatArmorItem) {
-            if (hitResult != null && hitResult.isHeadshot()) {
+            if (hitPart.hitPart() == ResolveHitBodyPartEvent.HitPartEnum.HEAD) {
                 playHeadShotSound(level, hurtEntity);
             }
         }

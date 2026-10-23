@@ -8,29 +8,30 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.zerocontact.ZeroContactLogger;
-import net.zerocontact.api.IAssetManager;
-import net.zerocontact.datagen.*;
-import net.zerocontact.registries.ItemsReg;
+import net.zerocontact.api.datagen.IAssetManager;
+import net.zerocontact.datagen.adapter.ItemAdapter;
+import net.zerocontact.datagen.adapter.RuntimeTypeAdapterFactory;
+import net.zerocontact.datagen.model.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static net.zerocontact.forge_registries.ItemsRegForge.ITEMS_REG_TAB;
-
 public class ZAssetManager implements IAssetManager {
-    private final RuntimeTypeAdapterFactory<ItemGenData> typeAdapterFactory =
+    private final RuntimeTypeAdapterFactory<ItemPOJO> typeAdapterFactory =
             RuntimeTypeAdapterFactory
-                    .of(ItemGenData.class, "type")
-                    .registerSubtype(ItemGenData.Plate.class, "plate")
-                    .registerSubtype(ItemGenData.Armor.class, "armor")
-                    .registerSubtype(ItemGenData.Loadout.class,"loadout");
+                    .of(ItemPOJO.class, "type")
+                    .registerSubtype(ItemPOJO.Plate.class, "plate")
+                    .registerSubtype(ItemPOJO.Armor.class, "armor")
+                    .registerSubtype(ItemPOJO.Loadout.class, "loadout")
+                    .registerSubtype(ModularPOJO.class, "module")
+                    .registerSubtype(ModularNVGPOJO.class, "module_nvg")
+                    .registerSubtype(ModularHeadsetPOJO.class,"module_headset");
     private final Gson gson = new GsonBuilder().registerTypeAdapterFactory(typeAdapterFactory).create();
 
     @Override
@@ -54,7 +55,9 @@ public class ZAssetManager implements IAssetManager {
                 T rawData = gson.fromJson(Files.newBufferedReader(itemJsonPath), targetBeanClazz);
                 data.accept(rawData, itemJsonPath);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Failed to load path: ", e);
+            } catch (JsonSyntaxException jsonSyntaxException) {
+                throw new RuntimeException("Failed to parse json: ", jsonSyntaxException);
             }
         });
     }
@@ -62,6 +65,7 @@ public class ZAssetManager implements IAssetManager {
     @Override
     public <T> void deserializeFromManifest(Path json, Gson gson, Class<T> targetBeanClazz, Consumer<T> data) throws IOException, JsonSyntaxException {
         if (Files.notExists(json)) return;
+        ZeroContactLogger.LOG.info("Try loading single JSON at；{}", json);
         T rawData = gson.fromJson(Files.newBufferedReader(json), targetBeanClazz);
         data.accept(rawData);
     }
@@ -79,25 +83,6 @@ public class ZAssetManager implements IAssetManager {
 
     @Override
     public void register() {
-        ZContentLoader.itemGenData.forEach((data, tab) -> ItemAdapter.ADAPTERS.forEach(adapter -> {
-            if (data instanceof ItemGenData.Armor armor) {
-                LinkedHashSet<GenerationRecord<?>> records = adapter.deserializeItems(armor, tab);
-                if (records.isEmpty()) return;
-                this.registerItems(ITEMS_REG_TAB, ItemsReg.ITEMS, new IAssetManager.WearableType(records, "ARMOR_LIKE"));
-            } else if (data instanceof ItemGenData.Plate plate) {
-                LinkedHashSet<GenerationRecord<?>> records = adapter.deserializeItems(plate, tab);
-                if (records.isEmpty()) return;
-                this.registerItems(ITEMS_REG_TAB, ItemsReg.ITEMS, new IAssetManager.WearableType(records, "PLATE_LIKE"));
-            } else if(data instanceof AmmoDataPOJO ammo){
-                LinkedHashSet<GenerationRecord<?>> records = adapter.deserializeItems(ammo, tab);
-                if(records.isEmpty())return;
-                this.registerItems(ITEMS_REG_TAB,ItemsReg.ITEMS, new IAssetManager.WearableType(records,"AMMO"));
-            }
-            else if(data instanceof ItemGenData.Loadout loadout){
-                LinkedHashSet<GenerationRecord<?>> records = adapter.deserializeItems(loadout, tab);
-                if(records.isEmpty())return;
-                this.registerItems(ITEMS_REG_TAB,ItemsReg.ITEMS, new IAssetManager.WearableType(records,"LOADOUT"));
-            }
-        }));
+        ItemAdapter.register(this);
     }
 }

@@ -2,10 +2,8 @@ package net.zerocontact.events;
 
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.EntityRenderers;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
@@ -14,21 +12,19 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.zerocontact.client.gui.AmmoSelectorScreen;
+import net.zerocontact.armor.modular.client.screen.EquipmentScreen;
 import net.zerocontact.client.gui.BackpackScreen;
-import net.zerocontact.client.gui.ConfigScreen;
 import net.zerocontact.client.gui.WorkbenchScreen;
 import net.zerocontact.client.interaction.KeyBindingHandler;
 import net.zerocontact.client.particle.PersistentSignalSmokeParticle;
 import net.zerocontact.client.tooltip.BallisticToolTipComponent;
 import net.zerocontact.client.tooltip.ClientBallisticToolTipComponent;
-import net.zerocontact.forge.ZeroContactForge;
-import net.zerocontact.forge_registries.ModMenus;
+import net.zerocontact.forge_registries.EntitiyRegistry;
+import net.zerocontact.forge_registries.MenuRegistry;
 import net.zerocontact.client.renderer.AccessoriesRender;
 import net.zerocontact.entity.ArmedRaider;
-import net.zerocontact.forge_registries.ModEntitiesReg;
-import net.zerocontact.forge_registries.ZCParticles;
+import net.zerocontact.forge_registries.ParticleRegistry;
 import net.zerocontact.client.renderer.ArmedRaiderRender;
 import net.zerocontact.item.block.Workbench;
 import net.zerocontact.item.forge.AbstractGenerateGeoCurioItemImpl;
@@ -38,7 +34,7 @@ import net.zerocontact.registries.ItemsReg;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
-import static net.zerocontact.forge_registries.BlocksRegForge.WORKBENCH_ENTITY;
+import static net.zerocontact.forge_registries.BlockRegistry.WORKBENCH_ENTITY;
 
 
 public class ModRegEventBus {
@@ -46,7 +42,7 @@ public class ModRegEventBus {
     static class ServerDistribution {
         @SubscribeEvent
         public static void registerAttr(EntityAttributeCreationEvent event) {
-            event.put(ModEntitiesReg.ARMED_RAIDER.get(), ArmedRaider.createAttributes().build());
+            event.put(EntitiyRegistry.ARMED_RAIDER.get(), ArmedRaider.createAttributes().build());
         }
     }
 
@@ -54,12 +50,12 @@ public class ModRegEventBus {
     static class ClientDistribution {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-            EntityRenderers.register(ModEntitiesReg.ARMED_RAIDER.get(), ArmedRaiderRender::new);
-            MenuScreens.register(ModMenus.BACKPACK_CONTAINER.get(), BackpackScreen::new);
-            MenuScreens.register(ModMenus.WORKBENCH_MENU.get(), WorkbenchScreen::new);
-            MenuScreens.register(ModMenus.AMMO_SELECTOR.get(), AmmoSelectorScreen::new);
+            EntityRenderers.register(EntitiyRegistry.ARMED_RAIDER.get(), ArmedRaiderRender::new);
+            MenuScreens.register(MenuRegistry.BACKPACK_CONTAINER.get(), BackpackScreen::new);
+            MenuScreens.register(MenuRegistry.WORKBENCH_MENU.get(), WorkbenchScreen::new);
+            MenuScreens.register(MenuRegistry.AMMO_SELECTOR.get(), AmmoSelectorScreen::new);
+            MenuScreens.register(MenuRegistry.EQUIPMENT_MENU.get(), EquipmentScreen::new);
             RegCurioGeoItemRender();
-            regConfigScreen(ZeroContactForge.getFmlJavaModLoadingContext());
         }
 
         @SubscribeEvent
@@ -75,7 +71,7 @@ public class ModRegEventBus {
         @SubscribeEvent
         public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
             event.registerSpriteSet(
-                    ZCParticles.PERSISTENT_SIGNAL_SMOKE.get(),
+                    ParticleRegistry.PERSISTENT_SIGNAL_SMOKE.get(),
                     PersistentSignalSmokeParticle.Provider::new
             );
         }
@@ -106,12 +102,4 @@ public class ModRegEventBus {
         });
     }
 
-    private static void regConfigScreen(FMLJavaModLoadingContext context) {
-        context.registerExtensionPoint(
-                ConfigScreenHandler.ConfigScreenFactory.class,
-                () -> new ConfigScreenHandler.ConfigScreenFactory(
-                        (mc, parent) -> new ConfigScreen(Component.literal("Config screen"), parent)
-                )
-        );
-    }
 }
