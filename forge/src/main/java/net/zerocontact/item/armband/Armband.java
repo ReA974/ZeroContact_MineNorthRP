@@ -70,7 +70,29 @@ public class Armband extends AbstractGenerateGeoCurioItemImpl implements IEquipm
                         new ResourceLocation(MOD_ID,"geo/armband/brassard_pn.geo.json"),
                         new ResourceLocation(MOD_ID,"")
                 )
-                        );
+        ),
+        // BAC (brassard orange POLICE porté en civil) : un brassard par grade (minenorth-police), même modèle que brassard_pn
+        PN_SOUS_OFFICIER(
+                new ArmbandResources(
+                        new ResourceLocation(MOD_ID,"textures/models/armband/brassard_pn_sous_officier.png"),
+                        new ResourceLocation(MOD_ID,"geo/armband/brassard_pn.geo.json"),
+                        new ResourceLocation(MOD_ID,"")
+                )
+        ),
+        PN_OFFICIER(
+                new ArmbandResources(
+                        new ResourceLocation(MOD_ID,"textures/models/armband/brassard_pn_officier.png"),
+                        new ResourceLocation(MOD_ID,"geo/armband/brassard_pn.geo.json"),
+                        new ResourceLocation(MOD_ID,"")
+                )
+        ),
+        PN_COMMISSAIRE(
+                new ArmbandResources(
+                        new ResourceLocation(MOD_ID,"textures/models/armband/brassard_pn_commissaire.png"),
+                        new ResourceLocation(MOD_ID,"geo/armband/brassard_pn.geo.json"),
+                        new ResourceLocation(MOD_ID,"")
+                )
+        );
         public final ArmbandResources resourceLocations;
         Series(ArmbandResources resourceLocations){
             this.resourceLocations = resourceLocations;

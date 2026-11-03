@@ -1,0 +1,16 @@
+{
+  "item.zerocontact.brassard_pn": "Brassard Police Nationale",
+  "item.zerocontact.uniform_pn_haut": "Haut Police Nationale",
+  "item.zerocontact.uniform_pn_bas": "Pantalon Police Nationale",
+  "item.zerocontact.brassard_pn_sous_officier": "Brassard BAC - Sous-officier",
+  "item.zerocontact.armor_jpc_v2_pn_sous_officier": "Gilet pare-balles Police - Sous-officier",
+  "item.zerocontact.helmet_pn_sous_officier": "Casque balistique Police - Sous-officier",
+  "item.zerocontact.brassard_pn_officier": "Brassard BAC - Officier",
+  "item.zerocontact.armor_jpc_v2_pn_officier": "Gilet pare-balles Police - Officier",
+  "item.zerocontact.helmet_pn_officier": "Casque balistique Police - Officier",
+  "item.zerocontact.brassard_pn_commissaire": "Brassard BAC - Commissaire",
+  "item.zerocontact.armor_jpc_v2_pn_commissaire": "Gilet pare-balles Police - Commissaire",
+  "item.zerocontact.helmet_pn_commissaire": "Casque balistique Police - Commissaire",
+  "item.zerocontact.armor_jpc_v2_pn_raid": "Gilet pare-balles RAID",
+  "item.zerocontact.helmet_pn_raid": "Casque balistique RAID"
+}

@@ -17,6 +17,10 @@ public class Armbands implements TabableItem {
     public static RegistrySupplier<Armband> ARMBAND_YELLOW = ItemsReg.ITEMS.register("armband_yellow", () -> Armband.create(Armband.Series.YELLOW));
     public static RegistrySupplier<Armband> ARMBAND_FLORA = ItemsReg.ITEMS.register("armband_flora", () -> Armband.create(Armband.Series.FLORA));
     public static RegistrySupplier<Armband> BRASSARD_PN = ItemsReg.ITEMS.register("brassard_pn", () -> Armband.create(Armband.Series.PN));
+    // BAC : un brassard par grade de minenorth-police
+    public static RegistrySupplier<Armband> BRASSARD_PN_SOUS_OFFICIER = ItemsReg.ITEMS.register("brassard_pn_sous_officier", () -> Armband.create(Armband.Series.PN_SOUS_OFFICIER));
+    public static RegistrySupplier<Armband> BRASSARD_PN_OFFICIER = ItemsReg.ITEMS.register("brassard_pn_officier", () -> Armband.create(Armband.Series.PN_OFFICIER));
+    public static RegistrySupplier<Armband> BRASSARD_PN_COMMISSAIRE = ItemsReg.ITEMS.register("brassard_pn_commissaire", () -> Armband.create(Armband.Series.PN_COMMISSAIRE));
     private static final List<RegistrySupplier<? extends ItemLike>> items = List.of(
             ARMBAND_BLACK,
             ARMBAND_RED,
@@ -25,7 +29,10 @@ public class Armbands implements TabableItem {
             ARMBAND_WHITE,
             ARMBAND_YELLOW,
             ARMBAND_FLORA,
-            BRASSARD_PN
+            BRASSARD_PN,
+            BRASSARD_PN_SOUS_OFFICIER,
+            BRASSARD_PN_OFFICIER,
+            BRASSARD_PN_COMMISSAIRE
     );
 
     @Override

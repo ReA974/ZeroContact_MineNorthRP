@@ -20,9 +20,15 @@ public class Armors implements TabableItem {
 //    public static RegistrySupplier<JpcArmorImpl> JPC_V1 = ItemsReg.ITEMS.register("armor_jpc_v1", () -> JpcArmorImpl.create(JpcArmorImpl.Series.V1, 0, 32, 0, 0.25f, 0.95f, 0.01F));
 //    public static RegistrySupplier<JpcArmorImpl> JPC_V2 = ItemsReg.ITEMS.register("armor_jpc_v2", () -> JpcArmorImpl.create(JpcArmorImpl.Series.V2, 0, 32, 0, 0.25f, 0.95f, 0.01F));
     public static RegistrySupplier<JpcArmorImpl> JPC_V2_PN = ItemsReg.ITEMS.register("armor_jpc_v2_pn_gs", () -> JpcArmorImpl.create(JpcArmorImpl.Series.PN_GS, 6, 64, 6, 0.25f, 0.95f, 0.01F));
+    // Police Nationale : un gilet par grade de minenorth-police (mêmes stats que le gilet gs)
+    public static RegistrySupplier<JpcArmorImpl> JPC_V2_PN_SOUS_OFFICIER = ItemsReg.ITEMS.register("armor_jpc_v2_pn_sous_officier", () -> JpcArmorImpl.create(JpcArmorImpl.Series.PN_SOUS_OFFICIER, 6, 64, 6, 0.25f, 0.95f, 0.01F));
+    public static RegistrySupplier<JpcArmorImpl> JPC_V2_PN_OFFICIER = ItemsReg.ITEMS.register("armor_jpc_v2_pn_officier", () -> JpcArmorImpl.create(JpcArmorImpl.Series.PN_OFFICIER, 6, 64, 6, 0.25f, 0.95f, 0.01F));
+    // RAID : plus protecteur (absorption et résistance accrues, un peu plus lourd)
+    public static RegistrySupplier<JpcArmorImpl> JPC_V2_PN_RAID = ItemsReg.ITEMS.register("armor_jpc_v2_pn_raid", () -> JpcArmorImpl.create(JpcArmorImpl.Series.PN_RAID, 8, 96, 8, 0.2f, 0.85f, 0.02F));
+    public static RegistrySupplier<JpcArmorImpl> JPC_V2_PN_COMMISSAIRE = ItemsReg.ITEMS.register("armor_jpc_v2_pn_commissaire", () -> JpcArmorImpl.create(JpcArmorImpl.Series.PN_COMMISSAIRE, 6, 64, 6, 0.25f, 0.95f, 0.01F));
 //    public static RegistrySupplier<AvsArmorImpl> AVS = ItemsReg.ITEMS.register("armor_avs", () -> new AvsArmorImpl(0, 48, 0, 0.20f, 0.85f, -0.03F));
     private static final List<RegistrySupplier<? extends ItemLike>> items = List.of(
-        JPC_V2_PN
+        JPC_V2_PN, JPC_V2_PN_SOUS_OFFICIER, JPC_V2_PN_OFFICIER, JPC_V2_PN_COMMISSAIRE, JPC_V2_PN_RAID
     );
 
     @Override

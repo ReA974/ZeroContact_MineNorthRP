@@ -27,7 +27,27 @@ public class JpcArmorImpl extends BaseArmorGeoImpl {
                 new ResourceLocation(MOD_ID, "textures/models/armorrig/armorrig_jpc_2v_pn.png"),
                 new ResourceLocation(MOD_ID, "geo/armorrig/armorrig_jpc_2v_sc_tan.geo.json"),
                 null
-                        );
+        ),
+        PN_SOUS_OFFICIER(
+                new ResourceLocation(MOD_ID, "textures/models/armorrig/armorrig_jpc_2v_pn_sous_officier.png"),
+                new ResourceLocation(MOD_ID, "geo/armorrig/armorrig_jpc_2v_sc_tan.geo.json"),
+                null
+        ),
+        PN_OFFICIER(
+                new ResourceLocation(MOD_ID, "textures/models/armorrig/armorrig_jpc_2v_pn_officier.png"),
+                new ResourceLocation(MOD_ID, "geo/armorrig/armorrig_jpc_2v_sc_tan.geo.json"),
+                null
+        ),
+        PN_COMMISSAIRE(
+                new ResourceLocation(MOD_ID, "textures/models/armorrig/armorrig_jpc_2v_pn_commissaire.png"),
+                new ResourceLocation(MOD_ID, "geo/armorrig/armorrig_jpc_2v_sc_tan.geo.json"),
+                null
+        ),
+        PN_RAID(
+                new ResourceLocation(MOD_ID, "textures/models/armorrig/armorrig_jpc_2v_pn_raid.png"),
+                new ResourceLocation(MOD_ID, "geo/armorrig/armorrig_jpc_2v_sc_tan.geo.json"),
+                null
+        );
         private final ResourceLocation texture;
         private final ResourceLocation model;
         private final ResourceLocation animation;

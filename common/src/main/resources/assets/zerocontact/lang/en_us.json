@@ -75,7 +75,7 @@
   "tooltip.zerocontact.ballistic_chart": "Nominal trajectory",
   "tootip.zerocontact.kit_armor": "[Right-click] over the equipment you want to repair",
   "tooltip.zerocontact.rig": "You cannot reload the gun directly from inventory once you equip the chest rig. Put your ammo in your chest rig.",
-  "hud.zerocontact.ammo.default": "\uD83E\uDC35 Default ammo",
+  "hud.zerocontact.ammo.default": "🠵 Default ammo",
   "block.zerocontact.thoughbook": "ThoughBook 67",
   "gui.zerocontact.workbench.title": "ThoughBook 67 -Order Gears online",
   "gui.zerocontact.workbench.armor": "Armor",
@@ -84,7 +84,6 @@
   "gui.zerocontact.workbench.ammo": "Ammo",
   "gui.zerocontact.workbench.accessories": "Accessories",
   "gui.zerocontact.workbench.module": "Module",
-
   "key.categories.zerocontact": "ZeroContact",
   "key.open_backpack": "Open Backpack",
   "key.open_selector": "Open Ammo selector",
@@ -100,5 +99,16 @@
   "config.zerocontact.client.trajectory_tooltip": "Display Trajectory Tooltip",
   "config.zerocontact.client.ammo_type_overlay": "Display Ammo Type overlay",
   "config.zerocontact.client.ammo_type_tooltip": "Display Ammo Type tooltip",
-  "config.zerocontact.client.audio_effect": "Audio Enhancement (Headset Module) "
+  "config.zerocontact.client.audio_effect": "Audio Enhancement (Headset Module) ",
+  "item.zerocontact.brassard_pn_sous_officier": "Brassard BAC - Sous-officier",
+  "item.zerocontact.armor_jpc_v2_pn_sous_officier": "Gilet pare-balles Police - Sous-officier",
+  "item.zerocontact.helmet_pn_sous_officier": "Casque balistique Police - Sous-officier",
+  "item.zerocontact.brassard_pn_officier": "Brassard BAC - Officier",
+  "item.zerocontact.armor_jpc_v2_pn_officier": "Gilet pare-balles Police - Officier",
+  "item.zerocontact.helmet_pn_officier": "Casque balistique Police - Officier",
+  "item.zerocontact.brassard_pn_commissaire": "Brassard BAC - Commissaire",
+  "item.zerocontact.armor_jpc_v2_pn_commissaire": "Gilet pare-balles Police - Commissaire",
+  "item.zerocontact.helmet_pn_commissaire": "Casque balistique Police - Commissaire",
+  "item.zerocontact.armor_jpc_v2_pn_raid": "Gilet pare-balles RAID",
+  "item.zerocontact.helmet_pn_raid": "Casque balistique RAID"
 }

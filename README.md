@@ -71,6 +71,19 @@ This mod also remasters how the game calculates:
 
 ---
 
+## 🚓 MineNorthRP – Police Nationale par grade
+
+Grades du mod `minenorth-police` : Sous-officier, Officier, Commissaire. Objets enregistrés en Java (pas dans `default_pack`) :
+- `brassard_pn_<grade>` : brassard orange POLICE de la BAC (en civil) + écusson de grade (`Armband.Series.PN_*`, modèle `brassard_pn`) ;
+- `armor_jpc_v2_pn_<grade>` : gilet pare-balles JPC PN (mêmes stats que `armor_jpc_v2_pn_gs`), POLICE devant et dans le dos, écusson de grade ;
+- `helmet_pn_<grade>` : casque balistique (modèle Bastion, stats du Bastion), bleu nuit, bandeau de grade, logo PN devant, POLICE sur la nuque (`PoliceHelmet`).
+RAID : `armor_jpc_v2_pn_raid` (gilet noir, plus protecteur) et `helmet_pn_raid` (casque noir), POLICE devant, RAID dans le dos.
+Écussons : chevrons argent (sous-officier), 2 barrettes argent (officier), 3 barrettes or (commissaire).
+Textures, modèles d'objet et noms (en_us ET fr_fr, en français) : `python tools/minenorth/gen_police_pn.py`.
+Aperçu hors jeu d'un modèle GeckoLib : `python tools/minenorth/apercu_geo.py <sortie.png> <geo> <texture> [...] --peau`.
+
+---
+
 ## 🖼 Preview
 
 ![banner](https://github.com/user-attachments/assets/c1f05642-3308-4063-be00-bcd5c73dc48e)
