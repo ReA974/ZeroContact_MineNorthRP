@@ -9,4 +9,6 @@ public class CuriosConstants {
     public static final String BACKPACK = "zc_backpack";
     public static final String UNIFORM_TOP = "zc_uniform_top";
     public static final String UNIFORM_PANTS = "zc_uniform_pants";
+    /** MineNorthRP : gilet pare-balles porté sans prendre le plastron (pour garder un haut de vêtement dessous). */
+    public static final String PLATE_CARRIER = "zc_plate_carrier";
 }

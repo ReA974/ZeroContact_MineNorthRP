@@ -27,6 +27,7 @@ import net.zerocontact.entity.ArmedRaider;
 import net.zerocontact.forge_registries.ParticleRegistry;
 import net.zerocontact.client.renderer.ArmedRaiderRender;
 import net.zerocontact.item.block.Workbench;
+import net.zerocontact.item.armor.forge.BaseArmorGeoImpl;
 import net.zerocontact.item.forge.AbstractGenerateGeoCurioItemImpl;
 import net.zerocontact.item.helmet.GenerateHelmetGeoImpl;
 import net.zerocontact.models.GenerateModel;
@@ -95,6 +96,9 @@ public class ModRegEventBus {
             Item item = itemRegistrySupplier.get();
             if (item instanceof AbstractGenerateGeoCurioItemImpl abstractGenerateGeoCurioItem) {
                 CuriosRendererRegistry.register(abstractGenerateGeoCurioItem, () -> new AccessoriesRender<>(abstractGenerateGeoCurioItem));
+            }
+            if (item instanceof BaseArmorGeoImpl armor) {          // gilets portés dans l'emplacement « gilet » (MineNorthRP)
+                CuriosRendererRegistry.register(armor, () -> new AccessoriesRender<>(armor));
             }
             if (item instanceof GenerateHelmetGeoImpl generateHelmetGeo) {
                 CuriosRendererRegistry.register(generateHelmetGeo, () -> new AccessoriesRender<>(generateHelmetGeo));

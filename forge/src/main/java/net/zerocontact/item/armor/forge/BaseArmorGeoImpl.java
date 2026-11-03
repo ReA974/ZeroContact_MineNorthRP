@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public abstract class BaseArmorGeoImpl extends ArmorItem implements GeoItem, IEquipmentTypeTag, ICombatArmorItem {
+public abstract class BaseArmorGeoImpl extends ArmorItem implements GeoItem, IEquipmentTypeTag, ICombatArmorItem, net.zerocontact.api.IGeoCurioItem {
     protected final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     protected final Type type;
     protected final int defense;
@@ -147,6 +147,34 @@ public abstract class BaseArmorGeoImpl extends ArmorItem implements GeoItem, IEq
         stack.getOrCreateTag().putFloat("movement_fix", getMass());
         modifierMultimap.put(Attributes.ARMOR, new AttributeModifier(UUID.nameUUIDFromBytes(("Armor").getBytes()), "CuriosArmorDefense", this.getDefense(), AttributeModifier.Operation.ADDITION));
         modifierMultimap.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.nameUUIDFromBytes(("MoveSpeed").getBytes()), "MoveSpeed", getMass(), AttributeModifier.Operation.MULTIPLY_TOTAL));
+        return modifierMultimap;
+    }
+
+    // ---- MineNorthRP : gilet porté dans l'emplacement Curios « gilet » (zc_plate_carrier), par-dessus un haut de vêtement
+
+    @Override
+    public ResourceLocation texture() {
+        return texture;
+    }
+
+    @Override
+    public ResourceLocation model() {
+        return model;
+    }
+
+    @Override
+    public ResourceLocation animation() {
+        return animation;
+    }
+
+    /** Mêmes effets que dans le plastron (armure, poids), avec des identifiants propres à l'emplacement. */
+    @Override
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(top.theillusivec4.curios.api.SlotContext slotContext, UUID uuid, ItemStack stack) {
+        Multimap<Attribute, AttributeModifier> modifierMultimap = HashMultimap.create();
+        stack.getOrCreateTag().putInt("protection_class", getAbsorb());
+        stack.getOrCreateTag().putFloat("movement_fix", getMass());
+        modifierMultimap.put(Attributes.ARMOR, new AttributeModifier(UUID.nameUUIDFromBytes(("Armor" + uuid).getBytes()), "CuriosArmorDefense", this.getDefense(), AttributeModifier.Operation.ADDITION));
+        modifierMultimap.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(UUID.nameUUIDFromBytes(("MoveSpeed" + uuid).getBytes()), "MoveSpeed", getMass(), AttributeModifier.Operation.MULTIPLY_TOTAL));
         return modifierMultimap;
     }
 

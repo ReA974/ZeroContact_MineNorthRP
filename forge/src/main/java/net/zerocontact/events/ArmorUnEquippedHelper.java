@@ -12,7 +12,6 @@ public class ArmorUnEquippedHelper {
 
     public static void onArmorUnequipped(SlotContext context, ItemStack stack) {
         LivingEntity entity = context.entity();
-        ItemStack armorStack = entity.getItemBySlot(EquipmentSlot.CHEST);
         ItemStack headStack = entity.getItemBySlot(EquipmentSlot.HEAD);
         if (entity instanceof ServerPlayer player) {
             if (stack.getItem() instanceof IEquipmentTypeTag slotTag) {
@@ -21,8 +20,7 @@ public class ArmorUnEquippedHelper {
                         rollBackItem(stack, player);
                     }
                 } else if (slotTag.getArmorType().equals(IEquipmentTypeTag.EquipmentType.PLATE)) {
-                    if (!(armorStack.getItem() instanceof IEquipmentTypeTag equipmentTypeTag
-                            && equipmentTypeTag.getArmorType().equals(IEquipmentTypeTag.EquipmentType.PLATE_CARRIER))) {
+                    if (EventUtil.getPlateCarrier(entity).isEmpty()) {
                         rollBackItem(stack, player);
                     }
                 }

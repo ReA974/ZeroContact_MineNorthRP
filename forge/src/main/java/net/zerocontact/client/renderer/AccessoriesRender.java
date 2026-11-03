@@ -42,6 +42,7 @@ public class AccessoriesRender<T extends Item & IGeoCurioItem> implements ICurio
                     || tag.getArmorType() == IEquipmentTypeTag.EquipmentType.ARMBAND
                     || tag.getArmorType() == IEquipmentTypeTag.EquipmentType.BACKPACK
                     || tag.getArmorType() == IEquipmentTypeTag.EquipmentType.RIGS
+                    || tag.getArmorType() == IEquipmentTypeTag.EquipmentType.PLATE_CARRIER
             ) {
                 render.prepForRender(slotContext.entity(), stack, EquipmentSlot.CHEST, (HumanoidModel<?>) renderLayerParent.getModel());
             }

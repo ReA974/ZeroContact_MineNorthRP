@@ -24,6 +24,7 @@ public class PlateEntityHurtSoundEvent {
         LivingEntity hurtEntity = hurtEvent.getEntity();
         ItemStack checkHelmetStack = hurtEntity.getItemBySlot(EquipmentSlot.HEAD);
         ItemStack checkArmorStack = hurtEntity.getItemBySlot(EquipmentSlot.CHEST);
+        if (!(checkArmorStack.getItem() instanceof ICombatArmorItem)) checkArmorStack = EventUtil.getPlateCarrier(hurtEntity);
         Level level = hurtEntity.level();
         if (!(source.is(ModDamageTypes.BULLETS_TAG) || source.is(ZDamageTypes.ZC_DAMAGE))) return;
         ResolveHitBodyPartEvent.HitPart hitPart = HitUtil.resolveHitPart(hurtEntity, source);

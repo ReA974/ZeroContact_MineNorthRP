@@ -12,5 +12,6 @@
   "item.zerocontact.armor_jpc_v2_pn_commissaire": "Gilet pare-balles Police - Commissaire",
   "item.zerocontact.helmet_pn_commissaire": "Casque balistique Police - Commissaire",
   "item.zerocontact.armor_jpc_v2_pn_raid": "Gilet pare-balles RAID",
-  "item.zerocontact.helmet_pn_raid": "Casque balistique RAID"
+  "item.zerocontact.helmet_pn_raid": "Casque balistique RAID",
+  "curios.identifier.zc_plate_carrier": "Gilet pare-balles"
 }

@@ -78,6 +78,9 @@ Grades du mod `minenorth-police` : Sous-officier, Officier, Commissaire. Objets 
 - `armor_jpc_v2_pn_<grade>` : gilet pare-balles JPC PN (mêmes stats que `armor_jpc_v2_pn_gs`), POLICE devant et dans le dos, écusson de grade ;
 - `helmet_pn_<grade>` : casque balistique (modèle Bastion, stats du Bastion), bleu nuit, bandeau de grade, logo PN devant, POLICE sur la nuque (`PoliceHelmet`).
 RAID : `armor_jpc_v2_pn_raid` (gilet noir, plus protecteur) et `helmet_pn_raid` (casque noir), POLICE devant, RAID dans le dos.
+Emplacement Curios « Gilet pare-balles » (`zc_plate_carrier`) : un gilet (tout `PLATE_CARRIER`) peut s'y porter au lieu du plastron, pour garder
+un haut de vêtement (polo / blouson police de minenorth-vetements) dessous. Protection, plaques, son d'impact, poids et rendu (par-dessus le haut)
+identiques : `EventUtil.getPlateCarrier` (plastron d'abord, sinon cet emplacement), `BaseArmorGeoImpl` est un `IGeoCurioItem`.
 Écussons : chevrons argent (sous-officier), 2 barrettes argent (officier), 3 barrettes or (commissaire).
 Textures, modèles d'objet et noms (en_us ET fr_fr, en français) : `python tools/minenorth/gen_police_pn.py`.
 Aperçu hors jeu d'un modèle GeckoLib : `python tools/minenorth/apercu_geo.py <sortie.png> <geo> <texture> [...] --peau`.

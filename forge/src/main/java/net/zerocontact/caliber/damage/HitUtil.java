@@ -90,8 +90,9 @@ public class HitUtil {
                 plateStack = backPlate;
             }
         }
-        if (lv.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof IEquipmentTypeTag tag && tag.getArmorType().equals(IEquipmentTypeTag.EquipmentType.PLATE_CARRIER)) {
-            defenseStacks.set(new ItemStack[]{plateStack, lv.getItemBySlot(EquipmentSlot.CHEST)});
+        ItemStack carrier = EventUtil.getPlateCarrier(lv);          // plastron ou emplacement « gilet » (MineNorthRP)
+        if (!carrier.isEmpty()) {
+            defenseStacks.set(new ItemStack[]{plateStack, carrier});
         }
         return defenseStacks.get();
     }

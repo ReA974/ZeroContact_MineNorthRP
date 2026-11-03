@@ -19,6 +19,14 @@ public class EventUtil {
         return dot > 0;
     }
 
+    /** Gilet pare-balles porté : celui du plastron, sinon celui de l'emplacement Curios « gilet » (MineNorthRP), sinon vide. */
+    public static ItemStack getPlateCarrier(LivingEntity entity) {
+        ItemStack chest = entity.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST);
+        if (chest.getItem() instanceof net.zerocontact.api.armor.IEquipmentTypeTag tag && tag.getArmorType() == net.zerocontact.api.armor.IEquipmentTypeTag.EquipmentType.PLATE_CARRIER) return chest;
+        ItemStack worn = getCuriosStackFirst(entity, net.zerocontact.curios.CuriosConstants.PLATE_CARRIER);
+        return worn.getItem() instanceof net.zerocontact.api.armor.IEquipmentTypeTag tag && tag.getArmorType() == net.zerocontact.api.armor.IEquipmentTypeTag.EquipmentType.PLATE_CARRIER ? worn : ItemStack.EMPTY;
+    }
+
     public static ItemStack getCuriosStackFirst(LivingEntity player, String id) {
         ItemStack[] stacks = {ItemStack.EMPTY};
         CuriosApi.getCuriosInventory(player).ifPresent(handler ->

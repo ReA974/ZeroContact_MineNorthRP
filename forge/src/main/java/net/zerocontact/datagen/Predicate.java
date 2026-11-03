@@ -30,6 +30,7 @@ public class Predicate {
                     case ARMBAND -> CuriosConstants.ARMBAND;
                     case BACKPACK -> CuriosConstants.BACKPACK;
                     case RIGS -> CuriosConstants.RIGS;
+                    case PLATE_CARRIER -> CuriosConstants.PLATE_CARRIER;
                     default -> equipmentTypeTag.getArmorType().getTypeId().toLowerCase();
                 };
                 return Objects.equals(slotResult.slotContext().identifier(), slotId);
