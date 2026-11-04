@@ -77,6 +77,7 @@ Grades du mod `minenorth-police` : Sous-officier, Officier, Commissaire. Objets 
 - `brassard_pn_<grade>` : brassard orange POLICE de la BAC (en civil) + écusson de grade (`Armband.Series.PN_*`, modèle `brassard_pn`) ;
 - `armor_jpc_v2_pn_<grade>` : gilet pare-balles JPC PN (mêmes stats que `armor_jpc_v2_pn_gs`), POLICE devant et dans le dos, écusson de grade ;
 - `helmet_pn_<grade>` : casque balistique (modèle Bastion, stats du Bastion), bleu nuit, bandeau de grade, logo PN devant, POLICE sur la nuque (`PoliceHelmet`).
+  `PoliceHelmet` est un `ModularEquipment` : mêmes points de montage que le Bastion (JVN, batterie, balise, casque radio, couvre-casque), aussi pour `helmet_pn_raid` ; listés dans le tag `mm:has_head_mount`.
 RAID : `armor_jpc_v2_pn_raid` (gilet noir, plus protecteur) et `helmet_pn_raid` (casque noir), POLICE devant, RAID dans le dos.
 Emplacement Curios « Gilet pare-balles » (`zc_plate_carrier`) : un gilet (tout `PLATE_CARRIER`) peut s'y porter au lieu du plastron, pour garder
 un haut de vêtement (polo / blouson police de minenorth-vetements) dessous. Protection, plaques, son d'impact, poids et rendu (par-dessus le haut)
