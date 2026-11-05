@@ -46,6 +46,7 @@ public class ItemRegistry {
             if (!event.getTab().equals(tab.get())) return;
             ITEMS_REG_TAB.entrySet().stream()
                     .filter(entry -> entry.getValue().equals(name))
+                    .filter(entry -> entry.getKey().isPresent())   // objet absent du serveur (retiré à la synchro des registres) : ignoré
                     .forEach(entry -> event.accept(entry.getKey()));
         });
     }

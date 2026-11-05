@@ -39,7 +39,8 @@ public class BlockRegistry {
     @SubscribeEvent
     public static void attachToTabs(BuildCreativeModeTabContentsEvent event) {
         if (event.getTab().equals(ItemsReg.ZERO_CONTACT.get())) {
-            BLOCK_ITEMS_REG_TAB.forEach(event::accept);
+            // un objet absent du serveur est retiré du client à la synchro des registres : on l'ignore au lieu de planter
+            BLOCK_ITEMS_REG_TAB.stream().filter(RegistryObject::isPresent).forEach(event::accept);
         }
     }
 
